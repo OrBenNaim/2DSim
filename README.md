@@ -1,3 +1,3 @@
 # Hi
 # Hello
-# new branch - “Sprint-1"
+# This is the new branch - “Sprint-1"
