@@ -4,7 +4,10 @@ import os
 from typing import Any
 
 #-----------------------------------------------------------------------------------------------------------------------
-def get_file_from_initial_patterns_folder(folder_path):
+def get_file_from_initial_patterns_folder(folder_path: str) -> str:
+    """ This function display the existing initial_pattern files
+        and allow the user to select his desired initial_pattern file """
+
     # List all files in the folder
     files = os.listdir(folder_path)
 
@@ -49,11 +52,32 @@ def load_pattern(filename: str) -> np.ndarray:
 
 
 #-----------------------------------------------------------------------------------------------------------------------
+def display_grid(grid: np.ndarray[np.int_, 2]) -> None:
+    """ This function display the grid at its current state in the terminal """
+    for row in grid:
+        for cell in row:
+            if cell:
+                print('O', end='')
+            else:
+                print('.', end='')
+
+        print() # Add newline
+
+
+#-----------------------------------------------------------------------------------------------------------------------
+def update_grid(grid: np.ndarray[np.int_, 2]) -> np.ndarray[np.int_, 2]:
+    """ This function calculates and creates the next state of the grid according to the game rules """
+
+
+#-----------------------------------------------------------------------------------------------------------------------"
 def game_of_life(filename:str, generations: int) -> None:
     """ This function activates and creates the entire game algorithm """
     grid_arr = load_pattern(filename)   # grid_arr is 2D numpy array
-    print(grid_arr)
 
+    for _ in range(generations):
+        display_grid(grid_arr)              # Display the grid at its current state before the next iteration
+        grid_arr = update_grid(grid_arr)    # Update the grid's state
+        time.sleep(0.5)                     # Create delay between iterations
 
 
 #-----------------------------------------------------------------------------------------------------------------------
