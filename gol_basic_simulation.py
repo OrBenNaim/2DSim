@@ -63,13 +63,44 @@ def display_grid(grid: np.ndarray[np.int_, 2]) -> None:
 
         print() # Add newline
 
+#-----------------------------------------------------------------------------------------------------------------------
+def count_live_neighbors(grid: np.ndarray[np.int_, 2], ref_row: int, ref_col: int) -> int:
+    """ This function counts how many live neighbors exist for a specific cell """
+    counter = 0
+
+    # In reference to the cell itself, the indexes of his neighbors are
+    # always constants.
+    # if cell is grid[ref_row][ref_col] so:
+    # neighbor1 is grid[ref_row - 1][ref_col - 1]   # upper_left
+    # neighbor2 is grid[ref_row - 1][ref_col]       # upper_mid
+    # and so on.
+
+    neighbors_shifts = [
+        (-1, -1), (-1, 0), (-1, 1),     # upper_left, upper_mid, upper_right
+        (0, -1), (0, 1),                # mid_left, mid_right
+        (1, -1), (1, 0), (1, 1),        # upper_left, upper_mid, upper_right
+    ]
+
+    # Get the number of rows and columns
+    rows, cols = grid.shape
+
+    # Calculate the neighbors indexes for each cell on the grid
+    for shift_row, shift_col in neighbors_shifts:
+        neighbor_row_idx, neighbor_col_idx = shift_row + ref_row, shift_col + ref_col
+
+        # Check if the neighbor's indexes are valid indexes
+        if 0 <= neighbor_row_idx < rows and 0 <= neighbor_col_idx < cols:
+            counter += grid[neighbor_row_idx, neighbor_col_idx]
+
+    return counter
+
 
 #-----------------------------------------------------------------------------------------------------------------------
 def update_grid(grid: np.ndarray[np.int_, 2]) -> np.ndarray[np.int_, 2]:
     """ This function calculates and creates the next state of the grid according to the game rules """
 
 
-#-----------------------------------------------------------------------------------------------------------------------"
+#-----------------------------------------------------------------------------------------------------------------------
 def game_of_life(filename:str, generations: int) -> None:
     """ This function activates and creates the entire game algorithm """
     grid_arr = load_pattern(filename)   # grid_arr is 2D numpy array
