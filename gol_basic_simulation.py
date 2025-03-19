@@ -98,11 +98,35 @@ def count_live_neighbors(grid: np.ndarray[np.int_, 2], ref_row: int, ref_col: in
 #-----------------------------------------------------------------------------------------------------------------------
 def update_grid(grid: np.ndarray[np.int_, 2]) -> np.ndarray[np.int_, 2]:
     """ This function calculates and creates the next state of the grid according to the game rules """
+    # Get the number of rows and columns
+    rows, cols = grid.shape
 
+    # Create new grid to the next generation.
+    # Changing specific cell on the current grid will damage other cells.
+    updated_grid = np.zeros((rows, cols), dtype=int)
+
+    # For each cell, update his status accordingly to his living neighbors and the game rules
+    for row in range(rows):         # 0 <= row <= len(rows) - 1
+        for col in range(cols):     # 0 <= col <= len(rows) - 1
+            cnt_live_neighbors = count_live_neighbors(grid, row, col)
+
+            # Live cell
+            if grid[row][col]:
+
+                # A case of a live cell that lives to the next generation
+                if cnt_live_neighbors == 2 and cnt_live_neighbors == 3:
+                    updated_grid[row][col] = 1
+
+            # Dead cell
+            else:
+                 if cnt_live_neighbors == 3:
+                     updated_grid[row][col] = 1
+
+    return updated_grid
 
 #-----------------------------------------------------------------------------------------------------------------------
 def game_of_life(filename:str, generations: int) -> None:
-    """ This function activates and creates the entire game algorithm """
+    """ This function activates the entire game algorithm """
     grid_arr = load_pattern(filename)   # grid_arr is 2D numpy array
 
     for _ in range(generations):
@@ -114,6 +138,9 @@ def game_of_life(filename:str, generations: int) -> None:
 #-----------------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
     steps = 50      # The number of iterations of the game
+
+    # Display the existing initial patterns and allow the user to select one of them
     selected_file = get_file_from_initial_patterns_folder("initial_patterns")
 
+    # Activate the game and show each step during the simulation
     game_of_life(selected_file, steps)
