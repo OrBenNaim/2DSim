@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import time
 import os
@@ -64,6 +65,7 @@ class GameOfLife:
         self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
         pygame.display.set_caption("Conway's Game of Life")
         self.clock = pygame.time.Clock()
+        self.FPS = 12
 
     # -----------------------------------------------------------------------------------------------------------------------
     def load_pattern(self) -> np.ndarray:
@@ -78,14 +80,15 @@ class GameOfLife:
     # -----------------------------------------------------------------------------------------------------------------------
     def display_grid(self) -> None:
         """ This function display the grid at its current state with pygame """
-        self.screen.fill(self.WHITE)
+        self.screen.fill(self.BLACK)
         rows, cols = self.grid.shape
         for row in range(rows):
             for col in range(cols):
                 if self.grid[row][col]:
-                    pygame.draw.rect(self.screen, self.BLACK, (col * self.CELL_SIZE, row * self.CELL_SIZE,
+                    pygame.draw.rect(self.screen, self.WHITE, (col * self.CELL_SIZE, row * self.CELL_SIZE,
                                                                self.CELL_SIZE, self.CELL_SIZE))
-        pygame.display.flip()
+        pygame.display.update()
+
 
     # -----------------------------------------------------------------------------------------------------------------------
     def count_live_neighbors(self, ref_row: int, ref_col: int) -> int:
@@ -153,9 +156,12 @@ class GameOfLife:
         gen = 0
 
         while self.running and gen < self.gen:
+
+            # 1. Event Handling
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
+                    sys.exit()
 
             self.display_grid()
             self.update_grid()
