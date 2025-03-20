@@ -2,7 +2,6 @@ import pygame
 from simulation import Simulation
 
 
-
 if __name__ == "__main__":
     SCREEN_WIDTH = 800
     SCREEN_HEIGHT = 600
