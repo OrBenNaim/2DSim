@@ -43,9 +43,8 @@ def get_file_from_initial_patterns_folder(folder_path: str) -> str:
 
 
 class Simulation:
-    """ The 'Simulation' class handles the different states of the game
-        and updates the grid object accordingly.
-        This class functions as pipeline between the main() function and the grid class """
+    """ Manages the game logic, updates the grid, handles user input and events.
+        This class functions as pipeline between the main() function and the grid class. """
 
     def __init__(self, screen_width: int, screen_height: int, cell_size: int) -> None:
         """Initialize the game simulation """

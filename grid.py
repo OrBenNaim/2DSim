@@ -3,7 +3,7 @@ import numpy as np
 
 
 class Grid:
-    """ The class 'Grid' creates the cells, toggle specific cell's state, draw cells on the pygame screen, etc. """
+    """ Defines the grid, cell toggling, and pattern handling """
 
     def __init__(self, screen_width: int, screen_height: int, cell_size: int) -> None:
         self.rows = screen_height // cell_size

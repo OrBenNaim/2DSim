@@ -40,8 +40,8 @@ This project simulates Conway's Game of Life, a cellular automaton devised by ma
     - Left-click on cells to toggle their state.
 
 ## File Structure
-- **main.py**: Entry point of the simulation, handles user input and events.
-- **simulation.py**: Manages the game logic and updates the grid.
+- **main.py**: Entry point of the simulation.
+- **simulation.py**: Manages the game logic, updates the grid, handles user input and events.
 - **grid.py**: Defines the grid, cell toggling, and pattern handling.
 
 
