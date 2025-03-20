@@ -2,7 +2,9 @@
 # Game of Life Simulation
 
 ## Description
-This project simulates Conway's Game of Life, a cellular automaton devised by mathematician John Conway. The simulation follows the game rules where cells on a grid evolve based on their neighbors. The project uses Python with `pygame` for visualization.
+This project simulates Conway's Game of Life, a cellular automaton devised by mathematician John Conway.
+The simulation follows the game rules where cells on a grid evolve based on their neighbors.
+The project uses Python with `pygame` for visualization.
 
 ## Features
 - **Grid Visualization**: Displays a grid of cells that can be toggled between alive and dead.
