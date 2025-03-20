@@ -45,10 +45,10 @@ if __name__ == "__main__":
     pygame.init()
 
     GREY = (40, 40, 40)
-    SCREEN_WIDTH = 800
-    SCREEN_HEIGHT = 600
-    CELL_SIZE = 12
-    FPS = 12
+    SCREEN_WIDTH = 1000
+    SCREEN_HEIGHT = 700
+    CELL_SIZE = 8
+    FPS = 10
     PATTERN_FOLDER = "initial_patterns"  # Folder where patterns are stored
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
