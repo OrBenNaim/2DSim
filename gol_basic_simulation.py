@@ -1,6 +1,7 @@
 import numpy as np
 import time
 import os
+import pygame
 from typing import Any
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -38,109 +39,136 @@ def get_file_from_initial_patterns_folder(folder_path: str) -> str:
 
         except ValueError:
             print("Invalid input. Please enter a valid number.")
-
-
 #-----------------------------------------------------------------------------------------------------------------------
-def load_pattern(filename: str) -> np.ndarray:
-    """ This function responsible to open the given file and to create the grid as 2D numpy array """
-    with open(filename, "r") as file:
-        lines = file.readlines()
 
-    # For each line in the file, check each cell status (live\die) and create 2D array accordingly
-    grid_arr = np.array([[ 1 if cell == 'O' else 0 for cell in line.strip() ] for line in lines ])
-    return grid_arr
+class GameOfLife:
+    def __init__(self, filename:str, generations: int = 100, delay: int=250):
+        """Initialize the game with a grid loaded from a file """
+        self.filename = filename
+        self.grid = self.load_pattern()   # grid is 2D numpy array
+        self.gen = generations
+        self.delay = delay
+        self.running = True     # This variable store the pygame screen's status
 
+        # Constants
+        self.CELL_SIZE = 10  # Size of each cell in pixels
+        self.GRID_WIDTH = 80  # Number of columns
+        self.GRID_HEIGHT = 60  # Number of rows
+        self.SCREEN_WIDTH = self.GRID_WIDTH * self.CELL_SIZE
+        self.SCREEN_HEIGHT = self.GRID_HEIGHT * self.CELL_SIZE
+        self.WHITE = (255, 255, 255)
+        self.BLACK = (0, 0, 0)
 
-#-----------------------------------------------------------------------------------------------------------------------
-def display_grid(grid: np.ndarray[np.int_, 2]) -> None:
-    """ This function display the grid at its current state in the terminal """
-    for row in grid:
-        for cell in row:
-            if cell:
-                print('O', end='')
-            else:
-                print('.', end='')
+        # Initialize Pygame
+        pygame.init()
+        self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        pygame.display.set_caption("Conway's Game of Life")
+        self.clock = pygame.time.Clock()
 
-        print() # Add newline
+    # -----------------------------------------------------------------------------------------------------------------------
+    def load_pattern(self) -> np.ndarray:
+        """ This function responsible to open the given file and to create the grid as 2D numpy array """
+        with open(self.filename, "r") as file:
+            lines = file.readlines()
 
-#-----------------------------------------------------------------------------------------------------------------------
-def count_live_neighbors(grid: np.ndarray[np.int_, 2], ref_row: int, ref_col: int) -> int:
-    """ This function counts how many live neighbors exist for a specific cell """
-    counter = 0
+        # For each line in the file, check each cell status (live\die) and create 2D array accordingly
+        grid = np.array([[1 if cell == 'O' else 0 for cell in line.strip()] for line in lines])
+        return grid
 
-    # In reference to the cell itself, the indexes of his neighbors are
-    # always constants.
-    # if cell is grid[ref_row][ref_col] so:
-    # neighbor1 is grid[ref_row - 1][ref_col - 1]   # upper_left
-    # neighbor2 is grid[ref_row - 1][ref_col]       # upper_mid
-    # and so on.
+    # -----------------------------------------------------------------------------------------------------------------------
+    def display_grid(self) -> None:
+        """ This function display the grid at its current state with pygame """
+        self.screen.fill(self.WHITE)
+        rows, cols = self.grid.shape
+        for row in range(rows):
+            for col in range(cols):
+                if self.grid[row][col]:
+                    pygame.draw.rect(self.screen, self.BLACK, (col * self.CELL_SIZE, row * self.CELL_SIZE,
+                                                               self.CELL_SIZE, self.CELL_SIZE))
+        pygame.display.flip()
 
-    neighbors_shifts = [
-        (-1, -1), (-1, 0), (-1, 1),     # upper_left, upper_mid, upper_right
-        (0, -1), (0, 1),                # mid_left, mid_right
-        (1, -1), (1, 0), (1, 1),        # upper_left, upper_mid, upper_right
-    ]
+    # -----------------------------------------------------------------------------------------------------------------------
+    def count_live_neighbors(self, ref_row: int, ref_col: int) -> int:
+        """ This function counts how many live neighbors exist for a specific cell """
+        counter = 0
 
-    # Get the number of rows and columns
-    rows, cols = grid.shape
+        # In reference to the cell itself, the indexes of his neighbors are
+        # always constants.
+        # if cell is grid[ref_row][ref_col] so:
+        # neighbor1 is grid[ref_row - 1][ref_col - 1]   # upper_left
+        # neighbor2 is grid[ref_row - 1][ref_col]       # upper_mid
+        # and so on.
 
-    # Calculate the neighbors indexes for each cell on the grid
-    for shift_row, shift_col in neighbors_shifts:
-        neighbor_row_idx, neighbor_col_idx = shift_row + ref_row, shift_col + ref_col
+        neighbors_shifts = [
+            (-1, -1), (-1, 0), (-1, 1),  # upper_left, upper_mid, upper_right
+            (0, -1), (0, 1),  # mid_left, mid_right
+            (1, -1), (1, 0), (1, 1),  # upper_left, upper_mid, upper_right
+        ]
 
-        # Check if the neighbor's indexes are valid indexes
-        if 0 <= neighbor_row_idx < rows and 0 <= neighbor_col_idx < cols:
-            counter += grid[neighbor_row_idx, neighbor_col_idx]
+        # Get the number of rows and columns
+        rows, cols = self.grid.shape
 
-    return counter
+        # Calculate the neighbors indexes for each cell on the grid
+        for shift_row, shift_col in neighbors_shifts:
+            neighbor_row_idx, neighbor_col_idx = shift_row + ref_row, shift_col + ref_col
 
+            # Check if the neighbor's indexes are valid indexes
+            if 0 <= neighbor_row_idx < rows and 0 <= neighbor_col_idx < cols:
+                counter += self.grid[neighbor_row_idx, neighbor_col_idx]
 
-#-----------------------------------------------------------------------------------------------------------------------
-def update_grid(grid: np.ndarray[np.int_, 2]) -> np.ndarray[np.int_, 2]:
-    """ This function calculates and creates the next state of the grid according to the game rules """
-    # Get the number of rows and columns
-    rows, cols = grid.shape
+        return counter
 
-    # Create new grid to the next generation.
-    # Changing specific cell on the current grid will damage other cells.
-    updated_grid = np.zeros((rows, cols), dtype=int)
+    # -----------------------------------------------------------------------------------------------------------------------
+    def update_grid(self) -> None:
+        """ This function calculates and creates the next state of the grid according to the game rules """
+        # Get the number of rows and columns
+        rows, cols = self.grid.shape
 
-    # For each cell, update his status accordingly to his living neighbors and the game rules
-    for row in range(rows):         # 0 <= row <= len(rows) - 1
-        for col in range(cols):     # 0 <= col <= len(rows) - 1
-            cnt_live_neighbors = count_live_neighbors(grid, row, col)
+        # Create new grid to the next generation.
+        # Changing specific cell on the current grid will damage other cells.
+        updated_grid = np.zeros((rows, cols), dtype=int)
 
-            # Live cell
-            if grid[row][col]:
+        # For each cell, update his status accordingly to his living neighbors and the game rules
+        for row in range(rows):  # 0 <= row <= len(rows) - 1
+            for col in range(cols):  # 0 <= col <= len(rows) - 1
+                cnt_live_neighbors = self.count_live_neighbors(row, col)
 
-                # A case of a live cell that lives to the next generation
-                if cnt_live_neighbors == 2 and cnt_live_neighbors == 3:
-                    updated_grid[row][col] = 1
+                # Live cell
+                if self.grid[row][col]:
 
-            # Dead cell
-            else:
-                 if cnt_live_neighbors == 3:
-                     updated_grid[row][col] = 1
+                    # A case of a live cell that lives to the next generation
+                    if cnt_live_neighbors == 2 and cnt_live_neighbors == 3:
+                        updated_grid[row][col] = 1
 
-    return updated_grid
+                # Dead cell
+                else:
+                    if cnt_live_neighbors == 3:
+                        updated_grid[row][col] = 1
 
-#-----------------------------------------------------------------------------------------------------------------------
-def game_of_life(filename:str, generations: int) -> None:
-    """ This function activates the entire game algorithm """
-    grid_arr = load_pattern(filename)   # grid_arr is 2D numpy array
+        self.grid = updated_grid
 
-    for _ in range(generations):
-        display_grid(grid_arr)              # Display the grid at its current state before the next iteration
-        grid_arr = update_grid(grid_arr)    # Update the grid's state
-        time.sleep(0.5)                     # Create delay between iterations
+    # -----------------------------------------------------------------------------------------------------------------------
+    def run(self) -> None:
+        """ Runs the Game of Life simulation """
+        gen = 0
+
+        while self.running and gen < self.gen:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+
+            self.display_grid()
+            self.update_grid()
+            pygame.time.delay(self.delay)
+            gen += 1
+
+        pygame.quit()
 
 
 #-----------------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
-    steps = 50      # The number of iterations of the game
-
     # Display the existing initial patterns and allow the user to select one of them
     selected_file = get_file_from_initial_patterns_folder("initial_patterns")
 
-    # Activate the game and show each step during the simulation
-    game_of_life(selected_file, steps)
+    game = GameOfLife(selected_file, generations=10000, delay=2000)
+    game.run()
