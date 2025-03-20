@@ -5,44 +5,11 @@ import os
 import pygame
 from typing import Any
 
-#-----------------------------------------------------------------------------------------------------------------------
-def get_file_from_initial_patterns_folder(folder_path: str) -> str:
-    """ This function display the existing initial_pattern files
-        and allow the user to select his desired initial_pattern file """
 
-    # List all files in the folder
-    files = os.listdir(folder_path)
+class Simulation:
+    """ The Simulation class handles the different states of the game
+        and responsible for operating the simulation itself """
 
-    # Filter out non-text files
-    text_files = [file for file in files if file.endswith('.txt')]
-
-    print("Current files:")
-
-    # Display the existing files in the folder
-    for i, filename in enumerate(text_files, start=1):
-        print(f"{i}. {filename}")
-
-    # Allow the user to select the desired file
-    while True:
-
-        try:
-            # Get the user selection (which is a number)
-            file_selection_num = int(input(f"Select a file by number (1-{len(text_files)}): "))
-
-            # Check if the input within a valid range
-            if file_selection_num < 1 or file_selection_num > len(text_files):
-                print(f"Invalid choice. Please select a number between 1 and {len(text_files)}.")
-                continue
-
-            # Get the file's name
-            selected_filename = text_files[file_selection_num - 1]
-            return os.path.join(folder_path, selected_filename)
-
-        except ValueError:
-            print("Invalid input. Please enter a valid number.")
-#-----------------------------------------------------------------------------------------------------------------------
-
-class GameOfLife:
     def __init__(self, filename:str, generations: int = 100, delay: int=250):
         """Initialize the game with a grid loaded from a file """
         self.filename = filename
@@ -62,7 +29,7 @@ class GameOfLife:
 
         # Initialize Pygame
         pygame.init()
-        self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        self.window = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
         pygame.display.set_caption("Conway's Game of Life")
         self.clock = pygame.time.Clock()
         self.FPS = 12
@@ -78,14 +45,14 @@ class GameOfLife:
         return grid
 
     # -----------------------------------------------------------------------------------------------------------------------
-    def display_grid(self) -> None:
+    def display(self) -> None:
         """ This function display the grid at its current state with pygame """
-        self.screen.fill(self.BLACK)
+        self.window.fill(self.BLACK)
         rows, cols = self.grid.shape
         for row in range(rows):
             for col in range(cols):
                 if self.grid[row][col]:
-                    pygame.draw.rect(self.screen, self.WHITE, (col * self.CELL_SIZE, row * self.CELL_SIZE,
+                    pygame.draw.rect(self.window, self.WHITE, (col * self.CELL_SIZE, row * self.CELL_SIZE,
                                                                self.CELL_SIZE, self.CELL_SIZE))
         pygame.display.update()
 
@@ -163,10 +130,10 @@ class GameOfLife:
                     self.running = False
                     sys.exit()
 
-            self.display_grid()
-            self.update_grid()
-            pygame.time.delay(self.delay)
-            gen += 1
+                self.display_window()
+                self.update_grid()
+                pygame.time.delay(self.delay)
+                gen += 1
 
         pygame.quit()
 
@@ -176,5 +143,6 @@ if __name__ == "__main__":
     # Display the existing initial patterns and allow the user to select one of them
     selected_file = get_file_from_initial_patterns_folder("initial_patterns")
 
-    game = GameOfLife(selected_file, generations=10000, delay=2000)
+    game = GameOfLife(selected_file, generations=100000, delay=3000)
     game.run()
+
