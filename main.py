@@ -47,7 +47,7 @@ if __name__ == "__main__":
     GREY = (40, 40, 40)
     SCREEN_WIDTH = 800
     SCREEN_HEIGHT = 600
-    CELL_SIZE = 10
+    CELL_SIZE = 12
     FPS = 12
     PATTERN_FOLDER = "initial_patterns"  # Folder where patterns are stored
 

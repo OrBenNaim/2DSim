@@ -22,22 +22,43 @@ class Grid:
 
 
     def load_from_file(self, filename: str):
-        """ Load an initial pattern from a text file. """
+        """ Load an initial pattern from a text file and resize the grid if needed, centered. """
         try:
             with open(filename, 'r') as f:
                 lines = f.readlines()
 
+            # Determine the pattern's size
+            pattern_rows = len(lines)
+            pattern_columns = max(len(line.strip()) for line in lines)
+
+            # Resize the grid if necessary
+            if pattern_rows > self.rows or pattern_columns > self.columns:
+                self.rows = pattern_rows
+                self.columns = pattern_columns
+                self.cells = np.zeros((self.rows, self.columns), dtype=int)  # Recreate the grid with new size
+
             self.clear()  # Clear the grid before loading
+
+            # Calculate the starting position to center the pattern
+            start_row = (self.rows - pattern_rows) // 2
+            start_col = (self.columns - pattern_columns) // 2
+
             for row, line in enumerate(lines):
                 line = line.strip()
+
                 for col, char in enumerate(line):
-                    if row < self.rows and col < self.columns:
+
+                    if row + start_row < self.rows and col + start_col < self.columns:
+
                         if char in ('1', 'X', 'O'):  # Interpret live cells
-                            self.cells[row][col] = 1
+                            self.cells[row + start_row][col + start_col] = 1
+
                         elif char in ('0', '.', '-'):  # Interpret dead cells
-                            self.cells[row][col] = 0
+                            self.cells[row + start_row][col + start_col] = 0
+
         except FileNotFoundError:
             print(f"Error: File '{filename}' not found.")
+
         except Exception as e:
             print(f"Error loading file: {e}")
 
