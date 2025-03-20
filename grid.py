@@ -5,9 +5,9 @@ import numpy as np
 class Grid:
     """ The class 'Grid' creates the cells, toggle specific cell's state, draw cells on the pygame screen, etc. """
 
-    def __init__(self, width: int, height: int, cell_size: int) -> None:
-        self.rows = height // cell_size
-        self.columns = width // cell_size
+    def __init__(self, screen_width: int, screen_height: int, cell_size: int) -> None:
+        self.rows = screen_height // cell_size
+        self.columns = screen_width // cell_size
         self.cell_size = cell_size
 
         self.cells = np.zeros((self.rows, self.columns), dtype=int)     # grid is 2D numpy array
@@ -15,7 +15,7 @@ class Grid:
 
     def draw(self, screen):
         for row, col in np.ndindex(self.cells.shape):
-            color = (255, 255, 255) if self.cells[row][col] else (10, 10, 10)
+            color = (255, 255, 255) if self.cells[row][col] else (30, 30, 30)
             pygame.draw.rect(screen, color,
                              (col * self.cell_size, row * self.cell_size,
                               self.cell_size - 1, self.cell_size - 1))
