@@ -44,10 +44,4 @@ This project simulates Conway's Game of Life, a cellular automaton devised by ma
 - **simulation.py**: Manages the game logic and updates the grid.
 - **grid.py**: Defines the grid, cell toggling, and pattern handling.
 
-## Contributing
 
-Feel free to fork the repository, submit issues, or create pull requests. Contributions are welcome!
-
-## License
-
-This project is licensed under the MIT License.
