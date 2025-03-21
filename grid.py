@@ -5,6 +5,8 @@ import numpy as np
 class Grid:
     """ Defines the grid, cell toggling, and pattern handling """
 
+
+
     def __init__(self, screen_width: int, screen_height: int, cell_size: int) -> None:
         self.rows = screen_height // cell_size
         self.columns = screen_width // cell_size
