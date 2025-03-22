@@ -61,40 +61,52 @@ class Simulation:
         self.grid.draw(screen)
 
 
-    def update_grid(self) -> None:
-        """ This function calculates and creates the next state of the grid according to the game rules """
+    def count_live_neighbors(self, ref_row: int, ref_col: int) -> int:
+        """ Counts how many live neighbors exist for a specific cell """
+        counter = 0
 
+        # Neighbor position shifts (relative to the cell)
+        neighbors_shifts = [
+            (-1, -1), (-1, 0), (-1, 1),     # upper_left, upper_mid, upper_right
+            (0, -1), (0, 1),                # mid_left, mid_right
+            (1, -1), (1, 0), (1, 1)         # lower_left, lower_mid, lower_right
+        ]
+
+        # Loop through the 8 neighbors
+        for shift_row, shift_col in neighbors_shifts:
+            neighbor_row_idx, neighbor_col_idx = ref_row + shift_row, ref_col + shift_col
+
+            # Validate that the neighbor is within bounds
+            if 0 <= neighbor_row_idx < self.grid.rows and 0 <= neighbor_col_idx < self.grid.columns:
+                counter += self.grid.cells[neighbor_row_idx, neighbor_col_idx]
+
+        return counter
+
+
+    def update_grid(self) -> None:
+        """ Updates the grid to the next state according to the game rules """
         if self.is_running():
 
-            # For each cell, update his status accordingly to his living neighbors and the game rules
-            for row, col in np.ndindex(self.grid.cells.shape):
+            rows, cols = self.grid.cells.shape
 
-                # Count how many neighbors are alive.
-                # Keep it mind that the neighbors cell located in the range:
-                # (row-1) <= row < row+2, (col-1) <= col < col+2,
+            for row in range(rows):
+                for col in range(cols):
+                    cnt_live_neighbors = self.count_live_neighbors(row, col)
+                    cell_value = self.grid.cells[row][col]
 
-                cnt_live_neighbors = np.sum(self.grid.cells[row - 1 : row + 2, col - 1 : col + 2]) - self.grid.cells[row][col]
+                    if cell_value == 1:
+                        if cnt_live_neighbors > 3 or cnt_live_neighbors < 2:
+                            self.temp_grid.cells[row][col] = 0  # Cell dies
 
-                cell_value = self.grid.cells[row][col]
-
-                # Live cell
-                if cell_value == 1:
-
-                    # A case of a live cell that dying
-                    if cnt_live_neighbors > 3 or cnt_live_neighbors < 2:
-                        self.temp_grid.cells[row][col] = 0
-
-                    # A case of a live cell that lives to the next generation
-                    if cnt_live_neighbors == 2 or cnt_live_neighbors == 3:
-                        self.temp_grid.cells[row][col] = 1
-
-                # Dead cell
-                else:
-                    if cnt_live_neighbors == 3:
-                        self.temp_grid.cells[row][col] = 1
+                        else:
+                            self.temp_grid.cells[row][col] = 1  # Cell lives
 
                     else:
-                        self.temp_grid.cells[row][col] = 0
+                        if cnt_live_neighbors == 3:
+                            self.temp_grid.cells[row][col] = 1  # Cell is born
+
+                        else:
+                            self.temp_grid.cells[row][col] = 0  # Cell dies
 
             self.grid.cells = self.temp_grid.cells.copy()   # Update the original grid.cells at the end of the operation
 
