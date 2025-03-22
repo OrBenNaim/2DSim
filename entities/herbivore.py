@@ -19,6 +19,25 @@ class Herbivore(Entity):
         else:
             self.move_randomly()
 
-    def reproduce(self, grid):
-        """ Herbivores reproduce when reaching another herbivore """
+
+    def reproduce(self, grid) -> None:
+        """ Staying in the same space and spawning another herbivore
+            in a random neighboring cell if cooldown is over """
+        if self.current_cooldown > 0:
+            self.current_cooldown -= 1
+            return
+
+        # else, cooldown is over
+        # Create all neighbor indexes
+        ref_shifts = [
+
+        ]
+
+        neighbors = grid[self.row - 1 : self.row + 2, self.col - 1 : self.col + 2]
+
+
+
+
+
+
 
