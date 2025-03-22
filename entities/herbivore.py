@@ -1,4 +1,5 @@
 from entity import Entity
+import numpy as np
 
 class Herbivore(Entity):
     """ Herbivore move towards plants, eat them and reproduce  """
@@ -33,7 +34,7 @@ class Herbivore(Entity):
 
         ]
 
-        neighbors = grid[self.row - 1 : self.row + 2, self.col - 1 : self.col + 2]
+        neighbors = grid[self.row - 1 : self.row + 2, self.col - 1 : self.col + 2], (self.row, self.col)
 
 
 
