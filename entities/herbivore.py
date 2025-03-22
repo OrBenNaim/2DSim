@@ -18,3 +18,7 @@ class Herbivore(Entity):
 
         else:
             self.move_randomly()
+
+    def reproduce(self, grid):
+        """ Herbivores reproduce when reaching another herbivore """
+
