@@ -11,7 +11,7 @@ class Grid:
         self.columns = SCREEN_WIDTH // CELL_SIZE
         self.cell_size = CELL_SIZE
 
-        self.cells = np.zeros((self.rows, self.columns), dtype=np.bool)  # grid is 2D numpy array
+        self.cells = np.zeros((self.rows, self.columns), dtype=np.bool_)  # grid is 2D numpy array
 
     def draw(self, screen):
         """ Draws the grid on the provided pygame screen.
@@ -45,7 +45,7 @@ class Grid:
             if pattern_rows > self.rows or pattern_columns > self.columns:
                 self.rows = pattern_rows
                 self.columns = pattern_columns
-                self.cells = np.zeros((self.rows, self.columns), dtype=np.bool)  # Recreate the grid with new size
+                self.cells = np.zeros((self.rows, self.columns), dtype=np.bool_)  # Recreate the grid with new size
 
             else:
                 self.clear()  # Clear the grid before loading
@@ -76,7 +76,7 @@ class Grid:
         self.cells = np.random.choice(a=[1, 0], size=(self.rows, self.columns), p=[0.25, 0.75])
 
     def clear(self):
-        self.cells = np.zeros((self.rows, self.columns), dtype=np.bool)
+        self.cells = np.zeros((self.rows, self.columns), dtype=np.bool_)
 
     def toggle_cell_state(self, row, col):
         """ Toggles the state of a cell at the specified row and column.
