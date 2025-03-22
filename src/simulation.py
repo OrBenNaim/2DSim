@@ -1,9 +1,8 @@
 import os
 import sys
 import time
-import numpy as np
 import pygame
-from grid import Grid
+from src.grid import Grid
 
 
 def get_file_from_initial_patterns_folder(folder_path: str) -> str:
@@ -56,10 +55,8 @@ class Simulation:
 
         self.running = False    # This flag indicates if the simulation running or not
 
-
     def draw(self, screen):
         self.grid.draw(screen)
-
 
     def count_live_neighbors(self, ref_row: int, ref_col: int) -> int:
         """ Counts how many live neighbors exist for a specific cell """
@@ -81,7 +78,6 @@ class Simulation:
                 counter += self.grid.cells[neighbor_row_idx, neighbor_col_idx]
 
         return counter
-
 
     def update_grid(self) -> None:
         """ Updates the grid to the next state according to the game rules """
@@ -110,38 +106,30 @@ class Simulation:
 
             self.grid.cells = self.temp_grid.cells.copy()   # Update the original grid.cells at the end of the operation
 
-
     def is_running(self):
         return self.running
-
 
     def start(self):
         self.running = True
 
-
     def stop(self):
         self.running = False
-
 
     def clear(self):
         if not self.is_running():
             self.grid.clear()
 
-
     def create_random_pattern(self):
         if not self.is_running():
             self.grid.fill_random()
-
 
     def load_pattern_from_file(self, filename: str):
         if not self.is_running():
             self.grid.load_from_file(filename)
 
-
     def toggle_cell(self, row, col):
         if not self.is_running():
             self.grid.toggle_cell(row, col)
-
 
     def run(self):
         """ This function create the pygame screen and handles the simulation itself """

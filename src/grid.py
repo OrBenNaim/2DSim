@@ -1,4 +1,5 @@
-import random, pygame
+import random
+import pygame
 import numpy as np
 
 
@@ -10,8 +11,7 @@ class Grid:
         self.columns = screen_width // cell_size
         self.cell_size = cell_size
 
-        self.cells = np.zeros((self.rows, self.columns), dtype=int)     # grid is 2D numpy array
-
+        self.cells = np.zeros((self.rows, self.columns), dtype=int)  # grid is 2D numpy array
 
     def draw(self, screen):
         for row, col in np.ndindex(self.cells.shape):
@@ -19,7 +19,6 @@ class Grid:
             pygame.draw.rect(screen, color,
                              (col * self.cell_size, row * self.cell_size,
                               self.cell_size - 1, self.cell_size - 1))
-
 
     def load_from_file(self, filename: str):
         """ Load an initial pattern from a text file and resize the grid if needed, centered. """
@@ -62,7 +61,6 @@ class Grid:
         except Exception as e:
             print(f"Error loading file: {e}")
 
-
     def fill_random(self):
         for row in range(self.rows):
             for column in range(self.columns):
@@ -71,7 +69,6 @@ class Grid:
     def clear(self):
         for row, col in np.ndindex(self.cells.shape):
             self.cells[row][col] = 0
-
 
     def toggle_cell(self, row, col):
 
