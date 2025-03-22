@@ -1,7 +1,7 @@
 import os
 
 
-def get_file_from_initial_patterns_folder(folder_path: str) -> str:
+def get_file_from_initial_patterns_folder(folder_path: str) -> str | None:
     """ This function displays the existing initial_pattern files
         and allows the user to select his desired initial_pattern file """
 
