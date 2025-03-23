@@ -4,6 +4,7 @@ import pygame
 
 from src.entities.herbivore import Herbivore
 from src.entities.plant import Plant
+from src.entities.predator import Predator
 from src.grid import Grid
 from src.constant import *
 
@@ -58,16 +59,21 @@ class Simulation:
                             self.temp_grid.cells[row][col] = None  # Plant dies
 
                     elif isinstance(obj, Herbivore):
-                        obj.move(self.grid)
-                        obj.eat(self.grid)
-                        obj.reproduce(self.grid)
+                        obj.move(self.grid)         # Let the herbivore move
+                        obj.reproduce(self.grid)    # Check if it can reproduce
 
                         obj.lifespan -= 1           # Reduce lifespan
                         if obj.lifespan <= 0:
                             self.temp_grid.cells[row][col] = None  # Herbivore dies
 
-                        else:
-                            self.temp_grid.cells[row][col] = 0  # Cell dies
+                    elif isinstance(obj, Predator):
+                        obj.move(self.grid)         # Let the predator move
+                        obj.reproduce(self.grid)    # Check if it can reproduce
+
+                        obj.lifespan -= 1           # Reduce lifespan
+                        if obj.lifespan <= 0:
+                            self.temp_grid.cells[row][col] = None  # Herbivore dies
+
 
             self.grid.cells = self.temp_grid.cells.copy()  # Update the original grid.cells at the end of the operation
 

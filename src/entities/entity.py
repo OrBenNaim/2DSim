@@ -9,6 +9,7 @@ class Entity:
         self.row = row
         self.col = col
         self.lifespan = None
+        self.current_lifespan = 0
 
 
     def load_entity_param_from_yaml(self):
