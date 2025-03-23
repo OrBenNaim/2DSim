@@ -1,13 +1,36 @@
+import yaml
+
 from entity import Entity
+from src.constant import FOLDER_CONFIG_PATH
 
 
 class Herbivore(Entity):
-    """ Herbivore move towards plants, eat them and reproduce  """
-    def __init__(self, row: int, col: int, lifespan: int, herbivore_sight: int, reproduction_cooldown: int) -> None:
-        super().__init__(row, col, lifespan)
-        self.herbivore_sight = herbivore_sight
-        self.reproduction_cooldown = reproduction_cooldown      # Cooldown before it can reproduce again
-        self.current_cooldown = 0   # Tracks cooldown progress
+    """ Herbivore move towards plants, eat them and reproduce. """
+    def __init__(self, row: int, col: int) -> None:
+        super().__init__(row, col)          # Initialize base constructor
+        self.herbivore_sight = None         # Herbivores move towards the closest plant they can see
+        self.reproduction_cooldown = None   # Cooldown before it can reproduce again
+        self.current_cooldown = 0           # Tracks cooldown progress
+
+        self.load_entity_param_from_yaml()  # Load T_herbivore_steps, R_herbivore_sight, T_cooldown_steps
+
+
+    def load_entity_param_from_yaml(self):
+        """ Load object's parameters (T_plant_steps, T_herbivore_steps, R_herbivore_sight,
+            T_cooldown_steps, T_predator_steps) from .yaml file. """
+        try:
+            # Load configuration settings from a YAML file
+            with open(FOLDER_CONFIG_PATH, "r") as file:
+                config = yaml.safe_load(file)
+
+            game_param = config.get("game_param", {})
+
+            self.lifespan = game_param['Herbivore']['T_herbivore_steps']
+            self.herbivore_sight = game_param['Herbivore']['R_herbivore_sight']
+            self.reproduction_cooldown = game_param['Herbivore']['T_cooldown_steps']
+
+        except Exception as e:
+            print(f"Error loading file: {e}")
 
 
     def move(self, grid):

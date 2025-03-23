@@ -1,18 +1,31 @@
-screen:
-  width: 800
-  height: 600
-  cell_size: 6
-
-colors:
-  alive: [255, 255, 255]    # White for alive cells
-  dead: [30, 30, 30]        # Dark gray for dead cells
-
 seed:
-  pattern_folder: "initial_patterns"    # Path to the pattern folder
+  Plant:
+    - { x: 0, y: 0 }
+    - { x: 3, y: 5 }
+    - { x: 5, y: 1 }
+    - { x: 10, y: 12 }
+
+  Herbivore:
+    - { x: 5, y: 10 }
+    - { x: 7, y: 4 }
+    - { x: 9, y: 13 }
+    - { x: 0, y: 1 }
+
+  Predator:
+    - { x: 0, y: 8 }
+    - { x: 6, y: 0 }
+    - { x: 4, y: 11 }
+    - { x: 1, y: 6 }
 
 game_param:
-  T_plant_steps: 50
-  T_herbivore_steps: 30
-  R_herbivore_sight1: 5
-  T_cooldown_steps: 7
-  T_predator_steps: 40
+  Plant:
+    T_plant_steps: 50
+
+  Herbivore:
+    T_herbivore_steps: 30
+    R_herbivore_sight: 5
+    T_cooldown_steps: 7
+
+  Predator:
+    T_predator_steps: 40
+    R_predator_sight: 12
