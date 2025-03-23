@@ -1,4 +1,13 @@
 import os
+from typing import Dict, Any
+import yaml
+
+
+def load_config(filename: str ="config.yaml") -> Dict[str, Any]:
+    """Load configuration settings from a YAML file."""
+    with open(filename, "r") as file:
+        config = yaml.safe_load(file)
+    return config
 
 
 def get_file_from_initial_patterns_folder(folder_path: str) -> str | None:
