@@ -1,0 +1,11 @@
+grid:
+  rows: 50
+  columns: 50
+  cell_size: 10
+
+colors:
+  alive: [255, 255, 255]    # White for alive cells
+  dead: [30, 30, 30]        # Dark gray for dead cells
+
+seed:
+  pattern_file: "patterns/glider.txt"  # Path to the pattern file
