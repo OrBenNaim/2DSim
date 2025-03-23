@@ -20,28 +20,6 @@ class Simulation:
         self.running = False        # This flag indicates if the simulation running or not
 
 
-    def count_live_neighbors(self, ref_row: int, ref_col: int) -> int:
-        """ Counts how many live neighbors exist for a specific cell """
-        counter = 0
-
-        # Neighbor position shifts (relative to the cell)
-        neighbors_shifts = [
-            (-1, -1), (-1, 0), (-1, 1),     # upper_left, upper_mid, upper_right
-            (0, -1), (0, 1),                # mid_left, mid_right
-            (1, -1), (1, 0), (1, 1)         # lower_left, lower_mid, lower_right
-        ]
-
-        # Loop through the 8 neighbors
-        for shift_row, shift_col in neighbors_shifts:
-            neighbor_row_idx, neighbor_col_idx = ref_row + shift_row, ref_col + shift_col
-
-            # Validate that the neighbor is within bounds
-            if 0 <= neighbor_row_idx < self.grid.rows and 0 <= neighbor_col_idx < self.grid.columns:
-                counter += self.grid.cells[neighbor_row_idx, neighbor_col_idx]
-
-        return counter
-
-
     def update_grid(self) -> None:
         """ Updates the grid to the next state according to the game rules """
         if self.running:
@@ -50,22 +28,23 @@ class Simulation:
 
             for row in range(rows):
                 for col in range(cols):
-                    cnt_live_neighbors = self.count_live_neighbors(row, col)
                     obj = self.grid.cells[row][col]
 
+                    # obj is plant
                     if isinstance(obj, Plant):
                         obj.lifespan -= 1  # Reduce lifespan
                         if obj.lifespan <= 0:
                             self.temp_grid.cells[row][col] = None  # Plant dies
 
+                    # obj is herbivore
                     elif isinstance(obj, Herbivore):
                         obj.move(self.grid)         # Let the herbivore move
-                        obj.reproduce(self.grid)    # Check if it can reproduce
 
                         obj.lifespan -= 1           # Reduce lifespan
                         if obj.lifespan <= 0:
                             self.temp_grid.cells[row][col] = None  # Herbivore dies
 
+                    # obj is predator
                     elif isinstance(obj, Predator):
                         obj.move(self.grid)         # Let the predator move
                         obj.reproduce(self.grid)    # Check if it can reproduce
@@ -91,11 +70,6 @@ class Simulation:
     def load_seed_from_yaml(self):
         if not self.running:
             self.grid.load_seed()
-
-
-    def toggle_cell_state(self, row, col):
-        if not self.running:
-            self.grid.toggle_cell_state(row, col)
 
 
     def event_handler(self):

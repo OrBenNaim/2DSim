@@ -1,4 +1,6 @@
 from random import random
+
+import numpy as np
 import yaml
 from entity import Entity
 from src.constant import FOLDER_CONFIG_PATH
@@ -45,6 +47,10 @@ class Herbivore(Entity):
 
         else:
             self.move_randomly(grid)
+
+        # Check if this herbivore reach another herbivore at his new position
+        if isinstance(grid.cells[self.row][self.col], Herbivore) and grid.cells[self.row][self.col] is not self:
+            self.reproduce(grid)
 
         grid.cells[self.row][self.col] = self   # Update the new location of this herbivore on the grid
 
@@ -95,30 +101,71 @@ class Herbivore(Entity):
 
 
     def move_randomly(self, grid):
-        """Moves randomly in one of the four directions."""
-        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
-        random.shuffle(directions)
+        """ Moves randomly to an empty cell on the grid. """
+        if np.any(grid.empty_cells):  # Ensure there are still empty cells
+            # Get the indices of empty cells
+            empty_indices = np.argwhere(grid.empty_cells)
 
-        for d_row, d_col in directions:
-            new_row, new_col = self.row + d_row, self.col + d_col
+            # Randomly choose one empty cell
+            chosen_cell = empty_indices[np.random.choice(len(empty_indices))]
 
-            if 0 <= new_row < len(grid) and 0 <= new_col < len(grid[0]) and grid[new_row][new_col] is None:
-                self.row, self.col = new_row, new_col
-                break
+            # Extract the new row and column for the herbivore
+            new_row, new_col = chosen_cell[0], chosen_cell[1]
+
+            # Update the empty cell array: mark the old cell as empty
+            grid.update_empty_cells(self.row, self.col, is_occupied=False)
+
+            # Move the herbivore to the chosen empty cell
+            self.row, self.col = new_row, new_col
+
+            # Update the empty cell array: mark the bew cell as occupied
+            grid.update_empty_cells(new_row, new_col, is_occupied=True)
+
+            # Mark the grid cell in the grid array as occupied
+            grid.cells[self.row, self.col] = None  # Vacate the old position
+            grid.cells[new_row, new_col] = self  # Mark the new position with the herbivore
 
 
     def reproduce(self, grid) -> None:
-        """ Staying in the same space and spawning another herbivore
-            in a random neighboring cell if cooldown is over """
+        """
+        Herbivores reproduce when reaching another herbivore,
+        staying in the same space and spawning another herbivore in a random empty neighboring cell.
+        """
+
+        # If the herbivore is in cooldown, reduce cooldown and return
         if self.current_cooldown > 0:
             self.current_cooldown -= 1
             return None
 
-        neighbors = [(self.row + dr, self.col + dc) for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]]
-        random.shuffle(neighbors)
+        # Possible movement directions (adjacent cells)
+        directions = [
+            (-1, -1), (-1, 0), (-1, 1),     # Top-left, Top, Top-right
+            (0, -1), (0, 1),                # Left, Right
+            (1, -1), (1, 0), (1, 1)         # Bottom-left, Bottom, Bottom-right
+        ]
 
-        for new_row, new_col in neighbors:
-            if 0 <= new_row < len(grid) and 0 <= new_col < len(grid[0]) and grid[new_row][new_col] is None:
+        # Use numpy vectorized operations to find empty neighboring cells
+        empty_neighbors = []
 
-                self.current_cooldown = self.reproduction_cooldown  # Reset cooldown
-                return Herbivore(new_row, new_col)
+        for dr, dc in directions:
+            new_row, new_col = self.row + dr, self.col + dc
+
+            # Check if the position is within bounds and the cell is empty
+            if 0 <= new_row < len(grid.cells) and 0 <= new_col < len(grid.cells[0]) and grid.empty_cells[
+                new_row, new_col]:
+                empty_neighbors.append((new_row, new_col))
+
+        # If there are any empty neighbors, randomly select one and create a new herbivore
+        if empty_neighbors:
+            # Randomly select one of the empty neighboring cells
+            chosen_cell = empty_neighbors[np.random.choice(len(empty_neighbors))]
+            new_row, new_col = chosen_cell
+
+            # Reset reproduction cooldown
+            self.current_cooldown = self.reproduction_cooldown
+
+            # Create a new herbivore in the chosen cell
+            grid.cells[new_row][new_col] = Herbivore(new_row, new_col)
+
+            # Update the empty_cells array to reflect the new herbivore's presence
+            grid.update_empty_cells(new_row, new_col, is_occupied=False)

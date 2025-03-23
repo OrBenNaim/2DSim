@@ -13,7 +13,16 @@ class Grid:
         self.columns = SCREEN_WIDTH // CELL_SIZE
         self.cell_size = CELL_SIZE
 
-        self.cells = np.zeros((self.rows, self.columns), dtype=object)  # grid is 2D numpy array
+        self.cells = np.zeros((self.rows, self.columns), dtype=object)      # grid is 2D numpy array
+        self.empty_cells = np.ones((self.rows, self.columns), dtype=bool)   # True for empty cells, False for occupied
+
+
+    def update_empty_cells(self, row, col, is_occupied=True):
+        """Update the empty cells array when a cell becomes occupied or free."""
+        if is_occupied:
+            self.empty_cells[row, col] = False  # Cell is occupied, mark as False
+        else:
+            self.empty_cells[row, col] = True  # Cell is free, mark as True
 
 
     def load_seed(self) -> None:
@@ -37,7 +46,7 @@ class Grid:
         """ Places an object at (x, y) in the grid """
         if 0 <= x < self.columns and 0 <= y < self.rows:
             self.cells[y][x] = obj(y, x)
-
+            self.update_empty_cells(y, x, is_occupied=True)
 
     def draw(self, screen):
         """ Draws the grid on the provided pygame screen.
