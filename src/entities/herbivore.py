@@ -1,5 +1,5 @@
 from entity import Entity
-import numpy as np
+
 
 class Herbivore(Entity):
     """ Herbivore move towards plants, eat them and reproduce  """
