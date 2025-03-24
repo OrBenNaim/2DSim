@@ -1,9 +1,8 @@
 import sys
 import time
+import numpy as np
 import pygame
-
 from src.entities.herbivore import Herbivore
-from src.entities.plant import Plant
 from src.entities.predator import Predator
 from src.grid import Grid
 from src.constant import *
@@ -15,61 +14,13 @@ class Simulation:
 
     def __init__(self) -> None:
         """Initialize the game simulation """
+        pygame.init()
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
+        pygame.display.set_caption("Game of Life")
+
         self.grid = Grid()          # Create a new grid object for the current simulation
         self.temp_grid = Grid()     # It will be used at the update() function
         self.running = False        # This flag indicates if the simulation running or not
-
-
-    def update_grid(self) -> None:
-        """ Updates the grid to the next state according to the game rules """
-        if self.running:
-
-            rows, cols = self.grid.cells.shape
-
-            for row in range(rows):
-                for col in range(cols):
-                    obj = self.grid.cells[row][col]
-
-                    # obj is plant
-                    if isinstance(obj, Plant):
-                        obj.lifespan -= 1  # Reduce lifespan
-                        if obj.lifespan <= 0:
-                            self.temp_grid.cells[row][col] = None  # Plant dies
-
-                    # obj is herbivore
-                    elif isinstance(obj, Herbivore):
-                        obj.move(self.grid)         # Let the herbivore move
-
-                        obj.lifespan -= 1           # Reduce lifespan
-                        if obj.lifespan <= 0:
-                            self.temp_grid.cells[row][col] = None  # Herbivore dies
-
-                    # obj is predator
-                    elif isinstance(obj, Predator):
-                        obj.move(self.grid)         # Let the predator move
-                        obj.reproduce(self.grid)    # Check if it can reproduce
-
-                        obj.lifespan -= 1           # Reduce lifespan
-                        if obj.lifespan <= 0:
-                            self.temp_grid.cells[row][col] = None  # Herbivore dies
-
-
-            self.grid.cells = self.temp_grid.cells.copy()  # Update the original grid.cells at the end of the operation
-
-
-    def clear(self):
-        if not self.running:
-            self.grid.clear()
-
-
-    def create_random_pattern(self):
-        if not self.running:
-            self.grid.fill_random()
-
-
-    def load_seed_from_yaml(self):
-        if not self.running:
-            self.grid.load_seed()
 
 
     def event_handler(self):
@@ -107,20 +58,46 @@ class Simulation:
                     self.running = False
                     pygame.display.set_caption("Game of Life has stopped")
 
-                elif event.key == pygame.K_r:  # Create a random initial pattern if the user presses the 'r' key
-                    self.create_random_pattern()
 
-                elif event.key == pygame.K_c:  # Clear the grid if the user presses the 'c' key
-                    self.clear()
+    def update_grid(self) -> None:
+        """ Updates the grid to the next state according to the game rules """
+        if self.running:
+
+            self.temp_grid.cells = self.grid.cells.copy()  # Sync at start
+
+            # The order of operations based on the place in the grid (left to right)
+            for row, col in np.ndindex(self.grid.cells.shape):
+                obj = self.grid.cells[row][col]
+
+                if obj is None:
+                    continue    # Pass
+
+                # Reduce object's lifespan
+                obj.current_lifespan -= 1
+                if obj.current_lifespan <= 0:
+                    self.temp_grid.cells[row][col] = None
+
+                # obj is herbivore or predator
+                if isinstance(obj, Predator):
+                    obj.move(self.temp_grid)         # Let the herbivore/predator move
+
+            self.grid.cells = self.temp_grid.cells.copy()  # Update the original grid.cells at the end of the operation
+
+
+    def load_seed_from_yaml(self):
+        if not self.running:
+            self.grid.load_seed()
 
 
     def run(self):
         """ This function handles the simulation itself """
+        self.running = True
         self.grid.load_seed()   # Initialize the grid for the first time from .yaml file configuration
 
-        pygame.init()
-        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
-        pygame.display.set_caption("Game of Life")
+        print("Initial grid state:")
+        for row, col in np.ndindex(self.grid.cells.shape):
+            if self.grid.cells[row][col]:
+                print(f"{self.grid.cells[row][col].__class__.__name__} at ({row}, {col})")
 
         # Simulation Loop
         while True:
@@ -131,8 +108,8 @@ class Simulation:
             self.update_grid()
 
             # 3. Drawing
-            screen.fill(BG_COLOR)
-            self.grid.draw(screen)
+            self.screen.fill(BG_COLOR)
+            self.grid.draw(self.screen)
 
             pygame.display.update()
 
