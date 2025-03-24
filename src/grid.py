@@ -38,21 +38,9 @@ class Grid:
         """Update the empty cells array when a cell becomes occupied or free."""
         if is_occupied:
             self.empty_cells[row, col] = False  # Cell is occupied, mark as False
+
         else:
             self.empty_cells[row, col] = True  # Cell is free, mark as True
-
-    def load_seed(self) -> None:
-        try:
-            with open(FOLDER_CONFIG_PATH, "r") as file:
-                config = yaml.safe_load(file)
-            seed = config.get("seed", {})
-            print("Loading seed:")
-            for obj_name, position_list in seed.items():
-                for pos in position_list:
-                    print(f"Adding {obj_name} at ({pos['x']}, {pos['y']})")
-                    self.add_object(obj_name, pos['x'], pos['y'])
-        except Exception as e:
-            raise ValueError(f"Error loading file: {e}")
 
 
     def add_object(self, obj_name: str, x: int, y: int) -> None:
@@ -62,9 +50,10 @@ class Grid:
             raise ValueError(f"Error: Unknown object '{obj_name}' at ({x}, {y})")
 
         if 0 <= y < self.rows and 0 <= x < self.columns:
-
             obj_instance = self.entity_classes[obj_name](y, x)    # Create an instance of obj
+
             self.cells[y][x] = obj_instance
+
             self.update_empty_cells(y, x, is_occupied=True)
 
 
@@ -93,7 +82,7 @@ class Grid:
                 entity = self.cells[row][col]
                 emoji = self.entity_emojis.get(entity.__class__.__name__, "❓")  # Default emoji if no match
 
-                text = self.font.render(emoji, True, (255, 255, 255))  # White text for emoji
+                text = self.font.render(emoji, True, WHITE_COLOR)  # White text for emoji
                 text_rect = text.get_rect(center=(col * self.cell_size + self.cell_size // 2,
                                                   row * self.cell_size + self.cell_size // 2))
                 screen.blit(text, text_rect)
@@ -132,3 +121,19 @@ class Grid:
         empty_neighbors = valid_neighbors[self.empty_cells[valid_neighbors[:, 0], valid_neighbors[:, 1]]]
 
         return empty_neighbors
+
+
+    def load_seed(self) -> None:
+        try:
+            with open(FOLDER_CONFIG_PATH, "r") as file:
+                config = yaml.safe_load(file)
+
+            seed = config.get("seed", {})
+
+            for obj_name, position_list in seed.items():
+                for pos in position_list:
+
+                    self.add_object(obj_name, pos['x'], pos['y'])
+
+        except Exception as e:
+            raise ValueError(f"Error loading file: {e}")

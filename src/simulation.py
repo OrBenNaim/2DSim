@@ -78,7 +78,7 @@ class Simulation:
                     self.temp_grid.cells[row][col] = None
 
                 # obj is herbivore or predator
-                if isinstance(obj, Predator):
+                if isinstance(obj, (Predator, Herbivore)):
                     obj.move(self.temp_grid)         # Let the herbivore/predator move
 
             self.grid.cells = self.temp_grid.cells.copy()  # Update the original grid.cells at the end of the operation
@@ -93,11 +93,6 @@ class Simulation:
         """ This function handles the simulation itself """
         self.running = True
         self.grid.load_seed()   # Initialize the grid for the first time from .yaml file configuration
-
-        print("Initial grid state:")
-        for row, col in np.ndindex(self.grid.cells.shape):
-            if self.grid.cells[row][col]:
-                print(f"{self.grid.cells[row][col].__class__.__name__} at ({row}, {col})")
 
         # Simulation Loop
         while True:

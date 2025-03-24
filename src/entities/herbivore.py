@@ -9,50 +9,13 @@ class Herbivore(Entity):
     """ Herbivore move towards plants, eat them and reproduce. """
     def __init__(self, row: int, col: int) -> None:
         super().__init__(row, col)          # Initialize base constructor
-        self.herbivore_sight = 0            # Herbivores move towards the closest plant they can see
         self.reproduction_cooldown = 0      # Cooldown before it can reproduce again
         self.current_cooldown = 0           # Tracks cooldown progress
-
-
-    def load_entity_param_from_yaml(self):
-        """ Load object's parameters (T_herbivore_steps, R_herbivore_sight, T_cooldown_steps) from .yaml file. """
-        try:
-            # Load configuration settings from a YAML file
-            with open(FOLDER_CONFIG_PATH, "r") as file:
-                config = yaml.safe_load(file)
-
-            game_param = config.get("game_param", {})
-
-            if 'Herbivore' not in game_param:
-                raise ValueError("Missing 'Herbivore' parameters in game_param")
-
-            if 'T_herbivore_steps' not in game_param['Herbivore']:
-                raise ValueError("Missing 'T_herbivore_steps' for Herbivore")
-
-            if 'R_herbivore_sight' not in game_param['Herbivore']:
-                raise ValueError("Missing 'R_herbivore_sight' parameters in game_param")
-
-            if 'T_cooldown_steps' not in game_param['Herbivore']:
-                raise ValueError("Missing 'T_cooldown_steps' parameters in game_param")
-
-            self.lifespan = game_param['Herbivore']['T_herbivore_steps']
-            self.current_lifespan = self.lifespan
-
-            self.herbivore_sight = game_param['Herbivore']['R_herbivore_sight']
-            self.reproduction_cooldown = game_param['Herbivore']['T_cooldown_steps']
-
-
-        except FileNotFoundError:
-            raise ValueError(f"Config file not found at {FOLDER_CONFIG_PATH}")
-
-        except Exception as e:
-            raise ValueError(f"Error loading Herbivore parameters: {e}")
 
 
     def move(self, grid):
         """ Move towards the closest plant they can see in a (herbivore_sight) radius
             or randomly if none are visible """
-
         if not self.is_alive():
             return  # Don't move if the herbivore is dead
 
@@ -62,52 +25,47 @@ class Herbivore(Entity):
         nearest_plant = self.find_nearest_plant(grid)
 
         if nearest_plant:
-            self.move_towards(grid, nearest_plant)
+            self.move_towards(nearest_plant)
 
         else:
             self.move_randomly(grid)
 
-
         # Check for reproduction only if we moved to a new position with another herbivore
-        new_pos_occupied = (
+        new_pos_occupied_by_herbivore = (
                             (self.row != old_row or self.col != old_col) and
                             isinstance(grid.cells[self.row][self.col], Herbivore) and
                            grid.cells[self.row][self.col] is not self
         )
 
-        if new_pos_occupied:
-            self.reproduce(grid)
-
         # Update the grid: vacate old position and occupy new position
-        if self.row != old_row or self.col != old_col:
+        if (self.row != old_row) or (self.col != old_col):
 
+            # Herbivore reaches another herbivore
+            if new_pos_occupied_by_herbivore:
+                self.reproduce(grid)                    # Create new Herbivore in a random neighboring cell
+                grid.cells[self.row][self.col] = self   # Move herbivore to his next location on the grid
+
+
+            # Herbivore reaches Plant
+            elif isinstance(grid.cells[self.row][self.col], Plant):
+                grid.cells[self.row][self.col] = self       # Move herbivore to his next location on the grid
+                self.current_lifespan = self.lifespan       # Refuel lifespan
+
+
+            # Herbivore moves to empty cell
+            elif grid.cells[self.row][self.col] is None:
+                grid.cells[self.row][self.col] = self       # Move herbivore to his next location on the grid
+                grid.update_empty_cells(self.row, self.col, is_occupied=True)
+
+
+            # If Herbivore reaches Predator -> Herbivore dies (clear old position)
+            else:
+                grid.cells[old_row][old_col] = None
+
+
+            # For all cases -> clear herbivore's old position on grid.cells
             grid.cells[old_row][old_col] = None
             grid.update_empty_cells(old_row, old_col, is_occupied=False)
-
-            grid.cells[self.row][self.col] = self
-            grid.update_empty_cells(self.row, self.col, is_occupied=True)
-
-
-    # def move_towards(self, target):
-    #     """ Moves one step towards the target plant. """
-    #     target_row, target_col = target
-    #
-    #     if self.row < target_row:
-    #         self.row += 1
-    #
-    #     elif self.row > target_row:
-    #         self.row -= 1
-    #
-    #     if self.col < target_col:
-    #         self.col += 1
-    #
-    #     elif self.col > target_col:
-    #         self.col -= 1
-    #
-    #     # Check if herbivore reaches a plant
-    #     if self.row == target_row and self.col == target_col:
-    #         self.current_lifespan = self.lifespan   # refueling the herbivore lifespan
-    #
 
 
     def find_nearest_plant(self, grid):
@@ -159,3 +117,38 @@ class Herbivore(Entity):
             self.current_cooldown = self.reproduction_cooldown
             grid.cells[new_row, new_col] = Herbivore(new_row, new_col)
             grid.update_empty_cells(new_row, new_col, is_occupied=True)  # Mark cell as occupied
+
+
+    def load_entity_param_from_yaml(self):
+        """ Load object's parameters (T_herbivore_steps, R_herbivore_sight, T_cooldown_steps) from .yaml file. """
+        try:
+            # Load configuration settings from a YAML file
+            with open(FOLDER_CONFIG_PATH, "r") as file:
+                config = yaml.safe_load(file)
+
+            game_param = config.get("game_param", {})
+
+            if 'Herbivore' not in game_param:
+                raise ValueError("Missing 'Herbivore' parameters in game_param")
+
+            if 'T_herbivore_steps' not in game_param['Herbivore']:
+                raise ValueError("Missing 'T_herbivore_steps' for Herbivore")
+
+            if 'R_herbivore_sight' not in game_param['Herbivore']:
+                raise ValueError("Missing 'R_herbivore_sight' parameters in game_param")
+
+            if 'T_cooldown_steps' not in game_param['Herbivore']:
+                raise ValueError("Missing 'T_cooldown_steps' parameters in game_param")
+
+            self.lifespan = game_param['Herbivore']['T_herbivore_steps']
+            self.current_lifespan = self.lifespan
+
+            self.herbivore_sight = game_param['Herbivore']['R_herbivore_sight']
+            self.reproduction_cooldown = game_param['Herbivore']['T_cooldown_steps']
+
+
+        except FileNotFoundError:
+            raise ValueError(f"Config file not found at {FOLDER_CONFIG_PATH}")
+
+        except Exception as e:
+            raise ValueError(f"Error loading Herbivore parameters: {e}")

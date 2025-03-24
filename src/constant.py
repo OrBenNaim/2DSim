@@ -8,6 +8,8 @@ BG_COLOR = (20, 20, 20)  # Gray color
 
 EMPTY_CELL_COLOR = (30, 30, 30)
 
+WHITE_COLOR = (255, 255, 255)
+
 FOLDER_CONFIG_PATH = "config.yaml"
 
-DELAY = 5
+DELAY = 1   # delay in seconds

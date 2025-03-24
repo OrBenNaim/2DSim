@@ -1,16 +1,14 @@
 # Game of Life Simulation
 
 ## Description
-This project simulates Conway's Game of Life, a cellular automaton devised by mathematician John Conway.
-The simulation follows the game rules where cells on a grid evolve based on their neighbors.
-The project uses Python with `pygame` for visualization.
+After implementing Game of Life, you will move on to implementing a more general version of these types of simulations, 
+where we can easily add many types of different entities with interesting interactions between them.
+You will then add entities to represent a Plant, an Herbivore and a Predator
 
 ## Features
-- **Grid Visualization**: Displays a grid of cells that can be toggled between alive and dead.
+- **Grid Visualization**: Displays a grid of cells with emojis.
 - **Simulation Control**: Start, stop, and pause the simulation.
-- **Random Patterns**: Generate random initial patterns.
-- **File Loading**: Load predefined patterns from text files.
-- **Interactive**: Click on cells to toggle their state.
+- **File Loading**: Load predefined patterns from .yaml file.
 
 ## Installation
 
@@ -35,14 +33,6 @@ The project uses Python with `pygame` for visualization.
 2. **Controls**:
     - `Space`: Pause/Resume simulation.
     - `Enter`: Start the simulation.
-    - `R`: Generate a random pattern.
-    - `C`: Clear the grid.
-    - `L`: Load a predefined pattern from a file.
-    - Left-click on cells to toggle their state.
 
-## File Structure
-- **main.py**: Entry point of the simulation.
-- **simulation.py**: Manages the game logic, updates the grid, handles user input and events.
-- **grid.py**: Defines the grid, cell toggling, and pattern handling.
 
 

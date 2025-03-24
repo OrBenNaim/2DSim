@@ -8,15 +8,7 @@ class Entity:
         self.col = col
         self.lifespan = None
         self.current_lifespan = 0
-
         self.load_entity_param_from_yaml()  # Load object's parameters
-
-
-    def load_entity_param_from_yaml(self):
-        """ Load object's parameters (T_plant_steps, T_herbivore_steps, R_herbivore_sight,
-            T_cooldown_steps, T_predator_steps) from .yaml file.
-            Each subclass will implement this. """
-        pass
 
 
     def move(self, grid):
@@ -24,7 +16,7 @@ class Entity:
         pass
 
 
-    def move_towards(self, grid, target):
+    def move_towards(self, target):
         """ Moves one step towards the target object.
             Each subclass (except from Plant) will implement this. """
         target_row, target_col = target
@@ -41,11 +33,6 @@ class Entity:
         elif self.col > target_col:
             self.col -= 1
 
-        # Check if predator reaches a herbivore
-        if self.row == target_row and self.col == target_col:
-            grid.cells[target_row][target_col] = None  # Herbivore dies
-            grid.update_empty_cells(target_row, target_col, is_occupied=False)
-            self.current_lifespan = self.lifespan  # Refuel lifespan
 
 
     def move_randomly(self, grid):
@@ -60,3 +47,10 @@ class Entity:
     def is_alive(self):
         """ Checks if the entity still alive. """
         return self.current_lifespan > 0
+
+
+    def load_entity_param_from_yaml(self):
+        """ Load object's parameters (T_plant_steps, T_herbivore_steps, R_herbivore_sight,
+            T_cooldown_steps, T_predator_steps) from .yaml file.
+            Each subclass will implement this. """
+        pass

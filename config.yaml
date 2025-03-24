@@ -1,44 +1,26 @@
-#seed:
-#  Plant:
-##    - { x: 0, y: 0 }
-##    - { x: 3, y: 5 }
-##    - { x: 5, y: 1 }
-#    - { x: 10, y: 12 }
-#
-#  Herbivore:
-#    - { x: 3, y: 1 }
-##    - { x: 5, y: 10 }
-##    - { x: 7, y: 4 }
-##    - { x: 9, y: 13 }
-#
-#  Predator:
-#    - { x: 0, y: 1 }
-##    - { x: 6, y: 0 }
-##    - { x: 4, y: 11 }
-##    - { x: 1, y: 6 }
-#
-#game_param:
-#  Plant:
-#    T_plant_steps: 50
-#
-#  Herbivore:
-#    T_herbivore_steps: 30
-#    R_herbivore_sight: 5
-#    T_cooldown_steps: 3
-#
-#  Predator:
-#    T_predator_steps: 40
-#    R_predator_sight: 4
 seed:
-  Herbivore:
+  Plant:
+    - { x: 0, y: 0 }
     - { x: 5, y: 4 }
+    - { x: 12, y: 1 }
+    - { x: 13, y: 8 }
+  Herbivore:
+    - { x: 0, y: 6 }
+    - { x: 3, y: 7 }
+    - { x: 7, y: 4 }
+    - { x: 11, y: 9 }
   Predator:
-    - { x: 1, y: 4 }
+    - { x: 1, y: 5 }
+    - { x: 12, y: 3 }
+    - { x: 8, y: 8 }
+    - { x: 8, y: 6 }
 game_param:
-  Predator:
-    T_predator_steps: 40
-    R_predator_sight: 2
+  Plant:
+    T_plant_steps: 50
   Herbivore:
     T_herbivore_steps: 30
-    R_herbivore_sight: 5
+    R_herbivore_sight: 2
     T_cooldown_steps: 3
+  Predator:
+    T_predator_steps: 40
+    R_predator_sight: 3
