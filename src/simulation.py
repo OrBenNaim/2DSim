@@ -94,6 +94,10 @@ class Simulation:
         self.running = True
         self.grid.load_seed()   # Initialize the grid for the first time from .yaml file configuration
 
+        # 3. Drawing
+        self.screen.fill(BG_COLOR)
+        self.grid.draw(self.screen)
+
         # Simulation Loop
         while True:
             # 1. Event Handling
