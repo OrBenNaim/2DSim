@@ -1,9 +1,10 @@
 import sys
 import time
+import numpy as np
 import pygame
+from src.entities.mobile_entity import MobileEntity
 from src.grid import Grid
-from src.constants import *
-from src.utils import get_file_from_initial_patterns_folder
+from src.constants import DELAY, BG_COLOR, SCREEN_WIDTH, SCREEN_HEIGHT
 
 
 class Simulation:
@@ -12,99 +13,73 @@ class Simulation:
 
     def __init__(self) -> None:
         """Initialize the game simulation """
+        pygame.init()
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
+        pygame.display.set_caption("Game of Life")
+
         self.grid = Grid()          # Create a new grid object for the current simulation
         self.temp_grid = Grid()     # It will be used at the update() function
         self.running = False        # This flag indicates if the simulation running or not
-
-    def count_live_neighbors(self, ref_row: int, ref_col: int) -> int:
-        """ Counts how many live neighbors exist for a specific cell """
-        counter = 0
-
-        # Neighbor position shifts (relative to the cell)
-        neighbors_shifts = [
-            (-1, -1), (-1, 0), (-1, 1),  # upper_left, upper_mid, upper_right
-            (0, -1), (0, 1),  # mid_left, mid_right
-            (1, -1), (1, 0), (1, 1)  # lower_left, lower_mid, lower_right
-        ]
-
-        # Loop through the 8 neighbors
-        for shift_row, shift_col in neighbors_shifts:
-            neighbor_row_idx, neighbor_col_idx = ref_row + shift_row, ref_col + shift_col
-
-            # Validate that the neighbor is within bounds
-            if 0 <= neighbor_row_idx < self.grid.rows and 0 <= neighbor_col_idx < self.grid.columns:
-                counter += self.grid.cells[neighbor_row_idx, neighbor_col_idx]
-
-        return counter
 
     def update_grid(self) -> None:
         """ Updates the grid to the next state according to the game rules """
         if self.running:
 
-            rows, cols = self.grid.cells.shape
+            self.temp_grid.cells = self.grid.cells.copy()  # Sync at start
 
-            for row in range(rows):
-                for col in range(cols):
-                    cnt_live_neighbors = self.count_live_neighbors(row, col)
-                    cell_value = self.grid.cells[row][col]
+            # The order of operations based on the place in the grid (left to right)
+            for row, col in np.ndindex(self.grid.cells.shape):
+                obj = self.grid.cells[row][col]
 
-                    if cell_value == 1:
-                        if cnt_live_neighbors not in (2, 3):
-                            self.temp_grid.cells[row][col] = 0  # Cell dies
+                if obj is None:
+                    continue    # Pass
 
-                        else:
-                            self.temp_grid.cells[row][col] = 1  # Cell lives
+                obj.decrease_current_lifespan()     # Reduce object's lifespan
 
-                    else:
-                        if cnt_live_neighbors == 3:
-                            self.temp_grid.cells[row][col] = 1  # Cell is born
+                if obj.get_current_lifespan() <= 0:
+                    self.temp_grid.cells[row][col] = None   # Object dies
 
-                        else:
-                            self.temp_grid.cells[row][col] = 0  # Cell dies
+                # obj is herbivore or predator
+                if isinstance(obj, MobileEntity):
+                    obj.move(self.temp_grid)         # Let the herbivore\predator move
 
             self.grid.cells = self.temp_grid.cells.copy()  # Update the original grid.cells at the end of the operation
 
-    def clear(self):
+    def load_seed_from_yaml(self):
         if not self.running:
-            self.grid.clear()
+            self.grid.load_seed()
 
-    def create_random_pattern(self):
-        if not self.running:
-            self.grid.fill_random()
+    def run(self):
+        """ This function handles the simulation itself """
+        self.running = True
+        self.grid.load_seed()   # Initialize the grid for the first time from .yaml file configuration
 
-    def load_pattern_from_file(self, filename: str):
-        if not self.running:
-            self.grid.load_from_file(filename)
+        # 3. Drawing
+        self.screen.fill(BG_COLOR)
+        self.grid.draw(self.screen)
 
-    def toggle_cell_state(self, row, col):
-        if not self.running:
-            self.grid.toggle_cell_state(row, col)
-            
-    def get_user_preference(self):
-        """ This function allows the user to choose to initialize the pattern with text file or manually """
-
+        # Simulation Loop
         while True:
-            use_text_file_for_pattern = input(
-                "\nDo you want to use text file for the initial pattern? (Press Y/N)\n").lower()
+            # 1. Event Handling
+            self.event_handler()
 
-            if use_text_file_for_pattern == 'y' or use_text_file_for_pattern == 'n':
-                break
-            else:
-                print("You entered wrong input. Please try again")
+            # 2. Updating the state of the grid
+            self.update_grid()
 
-        if use_text_file_for_pattern == 'y':
-            file_path = get_file_from_initial_patterns_folder(PATTERN_FOLDER)
-            if file_path:
-                self.load_pattern_from_file(file_path)
-                self.running = True
+            # 3. Drawing
+            self.screen.fill(BG_COLOR)
+            self.grid.draw(self.screen)
+
+            pygame.display.update()
+
+            time.sleep(DELAY)  # Add time DELAY
 
     def event_handler(self):
         """
         Handles various events in the game, including quitting, mouse clicks, and key presses.
 
-        This method processes user interactions like clicking cells to toggle their state,
-        starting and stopping the simulation with the Enter and Space keys, and triggering
-        actions for random pattern creation, grid clearing, or loading a pattern from a file
+        This method processes user interactions like starting and stopping the simulation with the Enter and Space keys,
+        and triggering actions for random pattern creation, grid clearing, or loading a pattern from a file
         when specific keys are pressed.
 
         Handle the following events:
@@ -123,13 +98,6 @@ class Simulation:
                 pygame.quit()
                 sys.exit()
 
-            # If the user presses on a specific cell with his mouse, change the cell state
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                pos = pygame.mouse.get_pos()
-                row = pos[1] // self.grid.cell_size
-                column = pos[0] // self.grid.cell_size
-                self.toggle_cell_state(row, column)
-
             # If the user presses on the keyboard, check it
             elif event.type == pygame.KEYDOWN:
 
@@ -140,42 +108,3 @@ class Simulation:
                 elif event.key == pygame.K_SPACE:  # Stop the simulation if the user presses the 'Space' key
                     self.running = False
                     pygame.display.set_caption("Game of Life has stopped")
-
-                elif event.key == pygame.K_r:  # Create a random initial pattern if the user presses the 'r' key
-                    self.create_random_pattern()
-
-                elif event.key == pygame.K_c:  # Clear the grid if the user presses the 'c' key
-                    self.clear()
-
-                elif event.key == pygame.K_l:  # Load pattern (centered)
-                    file_path = get_file_from_initial_patterns_folder(PATTERN_FOLDER)
-                    if file_path:
-                        self.load_pattern_from_file(file_path)
-                        self.running = True
-    
-    def run(self):
-        """ This function handles the simulation itself """
-        
-        # Let the user choose how he would like to initialize the pattern
-        self.get_user_preference()
-        
-        pygame.init()
-        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
-        pygame.display.set_caption("Game of Life")
-
-        # Simulation Loop
-        while True:
-
-            # 1. Event Handling
-            self.event_handler()
-
-            # 2. Updating the state of the grid
-            self.update_grid()
-
-            # 3. Drawing
-            screen.fill(BG_COLOR)
-            self.grid.draw(screen)
-
-            pygame.display.update()
-
-            time.sleep(DELAY)  # Add DELAY
