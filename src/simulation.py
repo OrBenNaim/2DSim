@@ -32,7 +32,10 @@ class Simulation:
                 obj = self.grid.cells[row][col]
 
                 if obj is None:
-                    continue    # Pass
+                    continue    # Pass for empty cells
+
+                if not obj.is_alive():
+                    continue    # Pass for static object like Tree Or Rock
 
                 obj.decrease_current_lifespan()     # Reduce object's lifespan
 

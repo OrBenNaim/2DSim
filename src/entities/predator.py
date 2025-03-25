@@ -18,6 +18,7 @@ class Predator(MobileEntity):
     def move(self, grid):
         """ Move towards the closest herbivore they can see in a (herbivore_sight) radius
             or randomly if none are visible """
+
         if not self.is_alive():
             return  # Don't move if the herbivore is dead
 
@@ -43,7 +44,7 @@ class Predator(MobileEntity):
             # Predator reaches Herbivore
             elif isinstance(grid.cells[self.row][self.col], Herbivore):
                 grid.cells[self.row][self.col] = self  # Move predator to his next location on the grid
-                self.__current_lifespan = self.__lifespan  # Refuel lifespan
+                self.current_lifespan = self.lifespan  # Refuel lifespan
 
             # Predator reaches to empty cell
             elif grid.cells[self.row][self.col] is None:
@@ -73,12 +74,12 @@ class Predator(MobileEntity):
             if 'R_Predator_sight' not in game_param['Predator']:
                 raise ValueError("Missing 'R_Predator_sight' parameters in game_param")
 
-            self.__lifespan = game_param['Predator']['T_Predator_steps']
-            self.__current_lifespan = self.__lifespan
-            self.__radius_sight = int(game_param['Predator']['R_Predator_sight'])
+            self.set_lifespan(game_param['Predator']['T_Predator_steps'])
+            self.set_current_lifespan(self.lifespan)
+            self.radius_sight = int(game_param['Predator']['R_Predator_sight'])
 
-            if self.__radius_sight <= 0:
-                raise ValueError(f"Invalid R_Predator_sight: {self.__radius_sight}, must be > 0")
+            if self.radius_sight <= 0:
+                raise ValueError(f"Invalid R_Predator_sight: {self.radius_sight}, must be > 0")
 
         except FileNotFoundError:
             raise ValueError(f"Config file not found at {FOLDER_CONFIG_PATH}")

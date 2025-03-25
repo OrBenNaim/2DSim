@@ -10,8 +10,8 @@ class Herbivore(MobileEntity):
 
     def __init__(self, row: int, col: int) -> None:
         super().__init__(row, col)          # Initialize base constructor
-        self.__reproduction_cooldown = 0    # Cooldown before it can reproduce again
-        self.__current_cooldown = 0         # Tracks cooldown progress
+        self.reproduction_cooldown = 0    # Cooldown before it can reproduce again
+        self.current_cooldown = 0         # Tracks cooldown progress
 
     @property
     def emoji(self):
@@ -20,6 +20,7 @@ class Herbivore(MobileEntity):
     def move(self, grid):
         """ Move towards the closest plant they can see in a (herbivore_sight) radius
             or randomly if none are visible """
+
         if not self.is_alive():
             return  # Don't move if the herbivore is dead
 
@@ -52,7 +53,7 @@ class Herbivore(MobileEntity):
             # Herbivore reaches Plant
             elif isinstance(grid.cells[self.row][self.col], Plant):
                 grid.cells[self.row][self.col] = self  # Move herbivore to his next location on the grid
-                self.__current_lifespan = self.__lifespan  # Refuel lifespan
+                self.current_lifespan = self.lifespan  # Refuel lifespan
 
             # Herbivore moves to empty cell
             elif grid.cells[self.row][self.col] is None:
@@ -74,8 +75,8 @@ class Herbivore(MobileEntity):
         """
 
         # If the herbivore is in cooldown, reduce cooldown and return
-        if self.__current_cooldown > 0:
-            self.__current_cooldown -= 1
+        if self.current_cooldown > 0:
+            self.current_cooldown -= 1
             return None
 
         empty_neighbors = grid.get_empty_neighbors(self.row, self.col)
@@ -84,7 +85,7 @@ class Herbivore(MobileEntity):
         if empty_neighbors.size > 0:
             new_row, new_col = empty_neighbors[np.random.choice(len(empty_neighbors))]
 
-            self.__current_cooldown = self.__reproduction_cooldown
+            self.current_cooldown = self.reproduction_cooldown
             grid.cells[new_row, new_col] = Herbivore(new_row, new_col)
             grid.update_empty_cells(new_row, new_col, is_occupied=True)  # Mark cell as occupied
 
@@ -109,17 +110,17 @@ class Herbivore(MobileEntity):
             if 'T_cooldown_steps' not in game_param['Herbivore']:
                 raise ValueError("Missing 'T_cooldown_steps' parameters in game_param")
 
-            self.__lifespan = game_param['Herbivore']['T_Herbivore_steps']
-            self.__current_lifespan = self.__lifespan
+            self.set_lifespan(game_param['Herbivore']['T_Herbivore_steps'])
+            self.set_current_lifespan(self.lifespan)
 
-            self.__radius_sight = int(game_param['Herbivore']['R_Herbivore_sight'])
-            self.__reproduction_cooldown = game_param['Herbivore']['T_cooldown_steps']
+            self.radius_sight = int(game_param['Herbivore']['R_Herbivore_sight'])
+            self.reproduction_cooldown = game_param['Herbivore']['T_cooldown_steps']
 
-            if self.__radius_sight <= 0:
-                raise ValueError(f"Invalid R_Predator_sight: {self.__radius_sight}, must be > 0")
+            if self.radius_sight <= 0:
+                raise ValueError(f"Invalid R_Predator_sight: {self.radius_sight}, must be > 0")
 
-            if self.__reproduction_cooldown <= 0:
-                raise ValueError(f"Invalid T_cooldown_steps: {self.__reproduction_cooldown}, must be > 0")
+            if self.reproduction_cooldown <= 0:
+                raise ValueError(f"Invalid T_cooldown_steps: {self.reproduction_cooldown}, must be > 0")
 
         except FileNotFoundError:
             raise ValueError(f"Config file not found at {FOLDER_CONFIG_PATH}")

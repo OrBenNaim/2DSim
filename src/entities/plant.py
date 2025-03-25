@@ -1,6 +1,4 @@
-import yaml
 from src.entities.entity import Entity
-from src.constants import FOLDER_CONFIG_PATH
 
 
 class Plant(Entity):

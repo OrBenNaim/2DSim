@@ -8,7 +8,7 @@ class MobileEntity(Entity, ABC):
 
     def __init__(self, row: int, col: int) -> None:
         super().__init__(row, col)  # Initialize base constructor
-        self.__radius_sight = None  # Private member
+        self.radius_sight = None  # Private member
 
     @abstractmethod
     def move(self, grid):
@@ -16,17 +16,17 @@ class MobileEntity(Entity, ABC):
         pass
 
     def find_nearest_target_object(self, grid, target_object):
-        """Finds the closest target within sight radius."""
-        closest_target = None
+        """ Finds the closest target position within sight radius."""
+        closest_target_pos = None
         min_distance = float("inf")
 
         rows, cols = grid.cells.shape  # Get dimensions from NumPy array
 
-        min_starting_row = max(0, self.row - self.__radius_sight)
-        max_starting_row = min(rows, self.row + self.__radius_sight + 1)
+        min_starting_row = max(0, self.row - self.radius_sight)
+        max_starting_row = min(rows, self.row + self.radius_sight + 1)
 
-        min_starting_col = max(0, self.col - self.__radius_sight)
-        max_starting_col = min(cols, self.col + self.__radius_sight + 1)
+        min_starting_col = max(0, self.col - self.radius_sight)
+        max_starting_col = min(cols, self.col + self.radius_sight + 1)
 
         for row in range(min_starting_row, max_starting_row):
             for col in range(min_starting_col, max_starting_col):
@@ -39,9 +39,9 @@ class MobileEntity(Entity, ABC):
 
                     if distance < min_distance:
                         min_distance = distance
-                        closest_target = (row, col)
+                        closest_target_pos = (row, col)
 
-        return closest_target
+        return closest_target_pos
 
     def move_towards(self, target):
         """ Moves one step towards the target object.

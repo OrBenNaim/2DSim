@@ -5,6 +5,7 @@ from src.constants import SCREEN_HEIGHT, SCREEN_WIDTH, CELL_SIZE, FOLDER_CONFIG_
 from src.entities.herbivore import Herbivore
 from src.entities.plant import Plant
 from src.entities.predator import Predator
+from src.entities.tree import Tree
 
 
 class Grid:
@@ -23,7 +24,7 @@ class Grid:
         # Dictionary to store mappings of entity names to their corresponding classes.
         # Keys: Class names as strings (e.g., "Plant", "Herbivore").
         # Values: The class reference (e.g., Plant, Herbivore).
-        self.existing_entities = {"Plant": Plant, "Herbivore": Herbivore, "Predator": Predator}
+        self.existing_entities = {"Tree": Tree, "Plant": Plant, "Herbivore": Herbivore, "Predator": Predator}
 
     def update_empty_cells(self, row, col, is_occupied=True):
         """ Update the empty cells array when a cell becomes occupied or empty. """
@@ -41,11 +42,29 @@ class Grid:
 
         if 0 <= y < self.rows and 0 <= x < self.columns:
             obj_instance = self.existing_entities[obj_name](y, x)     # Create an instance of obj
+            obj_instance.load_entity_param_from_yaml()      # Load object's parameters
+
             self.cells[y][x] = obj_instance                           # Add instance to the grid.cells
             self.update_empty_cells(y, x, is_occupied=True)           # Mark this cell as occupied
 
         else:
             raise ValueError(f"\n{(x, y)} outside the grid's bounds")
+
+    def load_seed(self) -> None:
+        """ Loads a seed configuration from a YAML file and initializes the entities in the simulation. """
+
+        try:
+            with open(FOLDER_CONFIG_PATH, "r") as file:
+                config = yaml.safe_load(file)
+
+            seed = config.get("seed", {})
+
+            for obj_name, position_list in seed.items():
+                for pos in position_list:
+                    self.add_object_to_grid(obj_name, pos['x'], pos['y'])
+
+        except Exception as e:
+            raise ValueError(f"Error loading file: {e}")
 
     def draw(self, screen):
         """ Draws the grid on the provided pygame screen.
@@ -105,19 +124,3 @@ class Grid:
         empty_neighbors = valid_neighbors[self.empty_cells[valid_neighbors[:, 0], valid_neighbors[:, 1]]]
 
         return empty_neighbors
-
-    def load_seed(self) -> None:
-        """ Loads a seed configuration from a YAML file and initializes the entities in the simulation. """
-
-        try:
-            with open(FOLDER_CONFIG_PATH, "r") as file:
-                config = yaml.safe_load(file)
-
-            seed = config.get("seed", {})
-
-            for obj_name, position_list in seed.items():
-                for pos in position_list:
-                    self.add_object_to_grid(obj_name, pos['x'], pos['y'])
-
-        except Exception as e:
-            raise ValueError(f"Error loading file: {e}")

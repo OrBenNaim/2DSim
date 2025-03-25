@@ -9,9 +9,8 @@ class Entity(ABC):
     def __init__(self, row: int, col: int) -> None:
         self.row = row
         self.col = col
-        self.__lifespan = None              # Private member
-        self.__current_lifespan = 0
-        self.load_entity_param_from_yaml()  # Load object's parameters
+        self.lifespan = None              # Private member
+        self.current_lifespan = None
 
     @property
     @abstractmethod
@@ -20,18 +19,25 @@ class Entity(ABC):
 
     def is_alive(self):
         """ Checks if the entity still alive. """
-        return self.__current_lifespan > 0
+        return self.current_lifespan > 0
+
+    def set_lifespan(self, lifespan):
+        self.lifespan = lifespan
+
+    def set_current_lifespan(self, current_lifespan):
+        self.current_lifespan = current_lifespan
 
     def get_current_lifespan(self):
         """ Getter function to the private attribute self.__current_lifespan """
-        return self.__current_lifespan
+        return self.current_lifespan
 
     def decrease_current_lifespan(self):
-        self.__current_lifespan -= 1
+        self.current_lifespan -= 1
 
     def load_entity_param_from_yaml(self):
         """ Load object's parameters (T_Object_steps) from .yaml file.
-            Each subclass from MobileEntity class will implement this. """
+            Each subclass from MobileEntity class will implement this.
+            Subclasses which are not belong to Mobile Entity do not need to implement this method. """
         try:
             with open(FOLDER_CONFIG_PATH, "r") as file:
                 config = yaml.safe_load(file)
@@ -47,8 +53,8 @@ class Entity(ABC):
                 raise ValueError(f"Missing '{T_class_name_steps}' for {class_name}")
 
             # For all classes:
-            self.__lifespan = game_param[class_name][T_class_name_steps]
-            self.__current_lifespan = self.__lifespan
+            self.set_lifespan(game_param[class_name][T_class_name_steps])
+            self.set_current_lifespan(self.lifespan)
 
         except FileNotFoundError:
             raise ValueError(f"Config file not found at {FOLDER_CONFIG_PATH}")
