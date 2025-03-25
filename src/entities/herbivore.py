@@ -60,7 +60,8 @@ class Herbivore(Entity):
 
             # If Herbivore reaches Predator -> Herbivore dies (clear old position)
             else:
-                grid.cells[old_row][old_col] = None
+                del grid.cells[old_row][old_col]
+
 
 
             # For all cases -> clear herbivore's old position on grid.cells

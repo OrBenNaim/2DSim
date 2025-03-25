@@ -34,7 +34,6 @@ class Entity:
             self.col -= 1
 
 
-
     def move_randomly(self, grid):
         """ Moves randomly to an empty neighbor cell on the grid. """
         empty_neighbors = grid.get_empty_neighbors(self.row, self.col)
