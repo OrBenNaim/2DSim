@@ -101,7 +101,6 @@ class MobileEntity(Entity, ABC):
     def find_nearest_target_object(self, grid, target_object):
         """ Finds the closest target position within sight radius."""
         closest_target_pos = None
-        min_distance = float("inf")
 
         rows, cols = grid.cells.shape  # Get dimensions from NumPy array
 
@@ -111,19 +110,30 @@ class MobileEntity(Entity, ABC):
         min_starting_col = max(0, self.col - self.radius_sight)
         max_starting_col = min(cols, self.col + self.radius_sight + 1)
 
+        # Extract the relevant subgrid (search window)
+        subgrid = grid.cells[min_starting_row:max_starting_row, min_starting_col:max_starting_col]
 
-        for row in range(min_starting_row, max_starting_row):
-            for col in range(min_starting_col, max_starting_col):
+        # Create a boolean mask to identify cells that are instances of the target_object
+        mask = np.vectorize(lambda cell: isinstance(cell, target_object))(subgrid)
 
-                if isinstance(grid.cells[row][col], target_object):
+        # Get the row and column indices where the target objects are present
+        target_indices = np.nonzero(mask)
 
-                    # Manhattan distance is a metric used to determine the distance between
-                    # two points in a grid-like path
-                    distance = abs(self.row - row) + abs(self.col - col)
+        # Check if there are any target objects
+        if target_indices[0].size > 0:
 
-                    if distance < min_distance:
-                        min_distance = distance
-                        closest_target_pos = (row, col)
+            # Calculate distances for all target objects at once
+            target_rows = target_indices[0] + min_starting_row  # Global row indices
+            target_cols = target_indices[1] + min_starting_col  # Global col indices
+
+            # Compute Manhattan distances in a vectorized manner
+            distances = np.abs(self.row - target_rows) + np.abs(self.col - target_cols)
+
+            # Find the index of the minimum distance
+            min_idx = np.argmin(distances)
+
+            # Get the closest target position
+            closest_target_pos = (target_rows[min_idx], target_cols[min_idx])
 
         return closest_target_pos
 
