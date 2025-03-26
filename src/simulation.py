@@ -13,6 +13,7 @@ class Simulation:
 
     def __init__(self) -> None:
         """Initialize the game simulation """
+        self.running = False
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
         pygame.display.set_caption("Game of Life")
@@ -23,34 +24,36 @@ class Simulation:
     def update_grid(self) -> None:
         """ Updates the grid to the next state according to the game rules """
 
-        self.temp_grid.cells = self.grid.cells.copy()  # Sync at start
+        if self.running:
+            self.temp_grid.cells = self.grid.cells.copy()  # Sync at start
 
-        # The order of operations based on the place in the grid (left to right)
-        for row, col in np.ndindex(self.grid.cells.shape):
-            obj = self.grid.cells[row][col]
+            # The order of operations based on the place in the grid (left to right)
+            for row, col in np.ndindex(self.grid.cells.shape):
+                obj = self.grid.cells[row][col]
 
-            if obj is None:
-                continue    # Pass for empty cells
+                if obj is None:
+                    continue    # Pass for empty cells
 
-            if not obj.is_alive():
-                continue    # Pass for static object like Tree Or Rock in the future
+                if not obj.is_alive():
+                    continue    # Pass for static object like Tree Or Rock in the future
 
-            obj.decrease_current_lifespan()     # Reduce object's lifespan
+                obj.decrease_current_lifespan()     # Reduce object's lifespan
 
-            if obj.get_current_lifespan() <= 0:
-                self.temp_grid.cells[row][col] = None   # Object dies
+                if obj.get_current_lifespan() <= 0:
+                    self.temp_grid.cells[row][col] = None   # Object dies
 
-            # obj is herbivore or predator
-            if isinstance(obj, MobileEntity):
-                obj.move(self.temp_grid)    # Let the herbivore\predator move
+                # obj is herbivore or predator
+                if isinstance(obj, MobileEntity):
+                    obj.move(self.temp_grid)    # Let the herbivore\predator move
 
-        self.temp_grid.add_random_plant()  # Plants appear randomly at empty spaces
+            self.temp_grid.add_random_plant()  # Plants appear randomly at empty spaces
 
-        self.grid.cells = self.temp_grid.cells.copy()  # Update the original grid.cells at the end of the operation
+            self.grid.cells = self.temp_grid.cells.copy()  # Update the original grid.cells at the end of the operation
 
 
     def run(self):
         """ This function handles the simulation itself """
+        self.running = True
         self.grid.load_param_from_yaml()   # Initialize the grid for the first time from .yaml file configuration
 
         # Simulation Loop
