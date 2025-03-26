@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-import yaml
 from src.constants import FOLDER_CONFIG_PATH
+from src.utils import get_config
 
 
 class Entity(ABC):
@@ -40,10 +40,8 @@ class Entity(ABC):
             Each subclass from MobileEntity class will implement this.
             Subclasses which are not belong to Mobile Entity do not need to implement this method. """
         try:
-            with open(FOLDER_CONFIG_PATH, "r", encoding="utf-8") as file:
-                config = yaml.safe_load(file)
-
-            game_param = config.get("game_param", {})
+            config_data = get_config()
+            game_param = config_data.get("game_param", {})
             class_name = self.__class__.__name__
             t_class_name_steps = "T_" + class_name + "_steps"
 
