@@ -29,13 +29,10 @@ class Grid:
         self.existing_entities = {"FastPredator": FastPredator, "Plant": Plant, "Herbivore": Herbivore,
                                   "Predator": Predator}
 
-    def update_empty_cells(self, row, col, is_occupied=True):
+    def update_empty_cells(self, row: int, col: int, is_occupied=True):
         """ Update the empty cells array when a cell becomes occupied or empty. """
-        if is_occupied:
-            self.empty_cells[row, col] = False  # Cell is occupied, mark as False
+        self.empty_cells[row, col] = not is_occupied
 
-        else:
-            self.empty_cells[row, col] = True  # Cell is free, mark as True
 
     def add_object_to_grid(self, obj_name: str, x: int, y: int) -> None:
         """ Places an object at (x, y) in the grid """
@@ -53,7 +50,7 @@ class Grid:
         else:
             raise ValueError(f"\n{(x, y)} outside the grid's bounds")
 
-    def load_seed(self) -> None:
+    def load_param_from_yaml(self) -> None:
         """ Loads a seed configuration from a YAML file and initializes the entities in the simulation. """
 
         try:
@@ -98,7 +95,7 @@ class Grid:
                                                   row * self.cell_size + self.cell_size // 2))
                 screen.blit(text, text_rect)
 
-    def get_empty_neighbors(self, ref_row, ref_col) -> np.ndarray:
+    def get_empty_neighbors(self, ref_row: int, ref_col: int) -> np.ndarray:
         """ Returns empty neighboring cells as a NumPy array """
 
         # Possible movement directions (adjacent cells)
