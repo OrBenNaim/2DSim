@@ -1,9 +1,8 @@
 import numpy as np
-import yaml
 from src.constants import FOLDER_CONFIG_PATH
 from src.entities.mobile_entity import MobileEntity
 from src.entities.plant import Plant
-
+from src.utils import get_config
 
 class Herbivore(MobileEntity):
     """ Herbivore move towards plants, eat them and reproduce. """
@@ -31,51 +30,6 @@ class Herbivore(MobileEntity):
         """ Returns the class of the entity that Herbivores target (Plant). """
         return Plant
 
-    def eat(self, target):
-        """ Herbivore eats a plant. """
-        if isinstance(target, Plant):
-            self.current_lifespan = self.lifespan  # Herbivore replenishes lifespan
-
-    # def update_position_on_grid(self, grid, old_pos: tuple[int, int], new_pos: tuple[int, int]):
-    #     """
-    #     Move towards the closest plant in a (herbivore_sight) radius
-    #     or randomly if none are visible
-    #     If the Herbivore reaches a Predator, the Herbivore dies
-    #     """
-    #     old_row, old_col = old_pos
-    #     new_row, new_col = new_pos
-    #
-    #     # Check for reproduction only if we moved to a new position with another herbivore
-    #     new_pos_occupied_by_herbivore = (
-    #             (new_row != old_row or new_col != old_col) and
-    #             isinstance(grid.cells[new_row][new_col], Herbivore) and
-    #             grid.cells[new_row][new_col] is not self
-    #     )
-    #
-    #     # Update the grid: vacate old position and occupy new position
-    #     if (new_row != old_row) or (new_col != old_col):
-    #
-    #         # Herbivore reaches another herbivore
-    #         if new_pos_occupied_by_herbivore:
-    #             self.reproduce(grid)  # Create new Herbivore in a random neighboring cell
-    #             grid.cells[new_row][new_col] = self  # Move herbivore to his next location on the grid
-    #
-    #         # Herbivore reaches Plant
-    #         elif isinstance(grid.cells[new_row][new_col], Plant):
-    #             grid.cells[new_row][new_col] = self  # Move herbivore to his next location on the grid
-    #             self.current_lifespan = self.lifespan  # Refuel lifespan
-    #
-    #         # Herbivore moves to empty cell
-    #         elif grid.cells[new_row][new_col] is None:
-    #             grid.cells[new_row][new_col] = self  # Move herbivore to his next location on the grid
-    #             grid.update_empty_cells(new_row, new_col, is_occupied=True)
-    #
-    #         # If Herbivore reaches Predator -> Herbivore dies (clear old position)
-    #
-    #         # For all cases -> clear herbivore's old position on grid.cells
-    #         grid.cells[old_row][old_col] = None
-    #         grid.update_empty_cells(old_row, old_col, is_occupied=False)
-
     def reproduce(self, grid) -> None:
         """
         Herbivores reproduce when reaching another herbivore,
@@ -101,10 +55,9 @@ class Herbivore(MobileEntity):
         """ Load object's parameters (T_herbivore_steps, R_herbivore_sight, T_cooldown_steps) from .yaml file. """
         try:
             # Load configuration settings from a YAML file
-            with open(FOLDER_CONFIG_PATH, "r", encoding="utf-8") as file:
-                config = yaml.safe_load(file)
+            config_data = get_config()
 
-            game_param = config.get("game_param", {})
+            game_param = config_data.get("game_param", {})
 
             if 'Herbivore' not in game_param:
                 raise ValueError("Missing 'Herbivore' parameters in game_param")
