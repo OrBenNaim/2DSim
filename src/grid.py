@@ -1,11 +1,13 @@
 import pygame
 import numpy as np
 import yaml
-from src.constants import SCREEN_HEIGHT, SCREEN_WIDTH, CELL_SIZE, FOLDER_CONFIG_PATH, WHITE_COLOR, EMPTY_CELL_COLOR
+from src.constants import (SCREEN_HEIGHT, SCREEN_WIDTH, CELL_SIZE, FOLDER_CONFIG_PATH,
+                           WHITE_COLOR, EMPTY_CELL_COLOR)
+
 from src.entities.herbivore import Herbivore
 from src.entities.plant import Plant
 from src.entities.predator import Predator
-from src.entities.tree import Tree
+from src.entities.fast_predator import FastPredator
 
 
 class Grid:
@@ -24,7 +26,8 @@ class Grid:
         # Dictionary to store mappings of entity names to their corresponding classes.
         # Keys: Class names as strings (e.g., "Plant", "Herbivore").
         # Values: The class reference (e.g., Plant, Herbivore).
-        self.existing_entities = {"Tree": Tree, "Plant": Plant, "Herbivore": Herbivore, "Predator": Predator}
+        self.existing_entities = {"FastPredator": FastPredator, "Plant": Plant, "Herbivore": Herbivore,
+                                  "Predator": Predator}
 
     def update_empty_cells(self, row, col, is_occupied=True):
         """ Update the empty cells array when a cell becomes occupied or empty. """
@@ -42,7 +45,7 @@ class Grid:
 
         if 0 <= y < self.rows and 0 <= x < self.columns:
             obj_instance = self.existing_entities[obj_name](y, x)     # Create an instance of obj
-            obj_instance.load_entity_param_from_yaml()      # Load object's parameters
+            obj_instance.load_entity_param_from_yaml()                # Load object's parameters
 
             self.cells[y][x] = obj_instance                           # Add instance to the grid.cells
             self.update_empty_cells(y, x, is_occupied=True)           # Mark this cell as occupied
@@ -54,7 +57,7 @@ class Grid:
         """ Loads a seed configuration from a YAML file and initializes the entities in the simulation. """
 
         try:
-            with open(FOLDER_CONFIG_PATH, "r") as file:
+            with open(FOLDER_CONFIG_PATH, "r", encoding="utf-8") as file:
                 config = yaml.safe_load(file)
 
             seed = config.get("seed", {})
@@ -64,7 +67,7 @@ class Grid:
                     self.add_object_to_grid(obj_name, pos['x'], pos['y'])
 
         except Exception as e:
-            raise ValueError(f"Error loading file: {e}")
+            raise ValueError(f"Error loading file: {e}") from e
 
     def draw(self, screen):
         """ Draws the grid on the provided pygame screen.
@@ -75,7 +78,8 @@ class Grid:
         colors = np.zeros((self.rows, self.columns, 3), dtype=np.uint8)
 
         # Set the color of empty cells (cells containing None) to EMPTY_CELL_COLOR.
-        # np.equal(self.cells, None) creates a boolean mask where each element is True if the corresponding cell is None.
+        # np.equal(self.cells, None) creates a boolean mask,
+        # where each element is True if the corresponding cell is None.
         # This mask is then used to assign EMPTY_CELL_COLOR to the matching positions in the colors array.
         colors[np.equal(self.cells, None)] = EMPTY_CELL_COLOR
 
@@ -124,3 +128,26 @@ class Grid:
         empty_neighbors = valid_neighbors[self.empty_cells[valid_neighbors[:, 0], valid_neighbors[:, 1]]]
 
         return empty_neighbors
+
+    def add_random_plant(self):
+        """
+        Adds a new Plant object to a random empty cell on the grid.
+        The method:
+        1. Checks if there are any empty cells.
+        2. Finds all empty cell indices.
+        3. Selects a random empty cell.
+        4. Places a new Plant at that position.
+        """
+
+        # Checks if there are any empty cells
+        if np.any(self.empty_cells):
+            empty_indexes = np.argwhere(self.empty_cells)   # Finds all empty cell indices
+
+            # Select a random empty cell
+            new_row, new_col = empty_indexes[np.random.choice(len(empty_indexes))]
+
+            # Places a new Plant at that position
+            self.add_object_to_grid("Plant", new_col, new_row)
+
+            # Mark the cell as occupied
+            self.empty_cells[new_row, new_col] = False

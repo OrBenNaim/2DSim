@@ -44,22 +44,21 @@ class Simulation:
 
                 # obj is herbivore or predator
                 if isinstance(obj, MobileEntity):
-                    obj.move(self.temp_grid)         # Let the herbivore\predator move
+                    obj.move(self.temp_grid)    # Let the herbivore\predator move
+
+            #self.temp_grid.add_random_plant()  # Plants appear randomly at empty spaces
 
             self.grid.cells = self.temp_grid.cells.copy()  # Update the original grid.cells at the end of the operation
 
-    def load_seed_from_yaml(self):
-        if not self.running:
+    def load_param_from_yaml(self):
+        """ load all game's parameters from .yaml file """
+        if self.running:
             self.grid.load_seed()
 
     def run(self):
         """ This function handles the simulation itself """
         self.running = True
-        self.grid.load_seed()   # Initialize the grid for the first time from .yaml file configuration
-
-        # 3. Drawing
-        self.screen.fill(BG_COLOR)
-        self.grid.draw(self.screen)
+        self.load_param_from_yaml()   # Initialize the grid for the first time from .yaml file configuration
 
         # Simulation Loop
         while True:

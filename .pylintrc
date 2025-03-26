@@ -1,6 +1,9 @@
 [main]
     ignored-modules = pygame
 
+[MASTER]
+init-hook='import sys; sys.path.append(".")'
+
 [format]
     max-line-length = 120
 

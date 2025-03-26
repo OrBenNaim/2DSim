@@ -4,8 +4,13 @@ from src.entities.herbivore import Herbivore
 from src.entities.mobile_entity import MobileEntity
 
 
-class Predator(MobileEntity):
-    """ Predators hunt herbivores and extend their lifespan when they eat. """
+class FastPredator(MobileEntity):
+    """ FastPredator acts as Predator except it moves twice faster.
+        Predators hunt herbivores and extend their lifespan when they eat. """
+
+    def __init__(self, row: int, col: int):
+        super().__init__(row, col)
+        self.speed = 2      # Moves twice faster
 
     @property
     def emoji(self):
@@ -39,11 +44,9 @@ class Predator(MobileEntity):
             self.current_lifespan = self.lifespan
 
     # def update_position_on_grid(self, grid, old_pos: tuple[int, int], new_pos: tuple[int, int]):
-    #     """
-    #     Move towards the closest herbivore they can see in a (herbivore_sight) radius
-    #     or randomly if none are visible.
-    #     If predator reaches a Plant, the Plant dies.
-    #     """
+    #     """ Move towards the closest herbivore they can see in a (herbivore_sight) radius
+    #         or randomly if none are visible.
+    #          If predator reaches a Plant, the Plant dies."""
     #
     #     old_row, old_col = old_pos
     #     new_row, new_col = new_pos
@@ -79,21 +82,21 @@ class Predator(MobileEntity):
 
             game_param = config.get("game_param", {})
 
-            if 'Predator' not in game_param:
-                raise ValueError("Missing 'Predator' parameters in game_param")
+            if 'FastPredator' not in game_param:
+                raise ValueError("Missing 'FastPredator' parameters in game_param")
 
-            if 'T_Predator_steps' not in game_param['Predator']:
-                raise ValueError("Missing 'T_Predator_steps' for Predator")
+            if 'T_FastPredator_steps' not in game_param['FastPredator']:
+                raise ValueError("Missing 'T_FastPredator_steps' for FastPredator")
 
-            if 'R_Predator_sight' not in game_param['Predator']:
-                raise ValueError("Missing 'R_Predator_sight' parameters in game_param")
+            if 'R_FastPredator_sight' not in game_param['FastPredator']:
+                raise ValueError("Missing 'R_FastPredator_sight' parameters in game_param")
 
-            self.lifespan = game_param['Predator']['T_Predator_steps']
+            self.lifespan = game_param['FastPredator']['T_FastPredator_steps']
             self.current_lifespan = self.lifespan
-            self.radius_sight = int(game_param['Predator']['R_Predator_sight'])
+            self.radius_sight = int(game_param['FastPredator']['R_FastPredator_sight'])
 
             if self.radius_sight <= 0:
-                raise ValueError(f"Invalid R_Predator_sight: {self.radius_sight}, must be > 0")
+                raise ValueError(f"Invalid R_FastPredator_sight: {self.radius_sight}, must be > 0")
 
         except FileNotFoundError as not_found:
             raise ValueError(f"Config file not found at {FOLDER_CONFIG_PATH}") from not_found

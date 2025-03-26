@@ -1,16 +1,12 @@
 seed:
   Plant:
     - { x: 0, y: 0 }
-    - { x: 5, y: 4 }
-    - { x: 12, y: 1 }
-    - { x: 13, y: 8 }
   Herbivore:
-    - { x: 0, y: 6 }
-    - { x: 3, y: 10 }
-    - { x: 11, y: 0 }
+    - { x: 9, y: 0 }
   Predator:
-    - { x: 7, y: 5 }
-    - { x: 11, y: 9 }
+    - { x: 2, y: 8 }
+  FastPredator:
+    - { x: 7, y: 10}
 game_param:
   Plant:
     T_Plant_steps: 50
@@ -21,3 +17,6 @@ game_param:
   Predator:
     T_Predator_steps: 40
     R_Predator_sight: 5
+  FastPredator:
+    T_FastPredator_steps: 40
+    R_FastPredator_sight: 10
