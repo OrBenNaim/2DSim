@@ -39,10 +39,7 @@ class Herbivore(MobileEntity):
 
     def load_entity_param_from_yaml(self):
         """ Load object's parameters (T_herbivore_steps, R_herbivore_sight, T_cooldown_steps) from .yaml file. """
-
-        super().load_entity_param_from_yaml()
-
-        self.reproduction_cooldown = self.game_param['Herbivore']['T_cooldown_steps']
+        self.reproduction_cooldown = self.game_param[self.name()]['T_cooldown_steps']
 
         if self.reproduction_cooldown <= 0:
             raise ValueError(f"Invalid T_cooldown_steps: {self.reproduction_cooldown}, must be > 0")

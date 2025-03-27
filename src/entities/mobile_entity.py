@@ -9,7 +9,7 @@ class MobileEntity(Entity, ABC):
 
     def __init__(self, row: int, col: int, emoji) -> None:
         super().__init__(row, col, emoji)  # Initialize base constructor
-        self.radius_sight = None  # Moves towards the closest Herbivore they can see in a (R_predator_sight)
+        self.radius_sight = 0  # Moves towards the closest Herbivore they can see in a (R_predator_sight)
         self.speed = 1  # speed = 1 means entity moves at normal speed, speed = 2 means moves twice faster
 
     @property

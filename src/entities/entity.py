@@ -9,8 +9,8 @@ class Entity(ABC):
     def __init__(self, row: int, col: int, emoji: str) -> None:
         self.row = row
         self.col = col
-        self.lifespan = None              # Private member
-        self.current_lifespan = None
+        self.lifespan = 0              # Private member
+        self.current_lifespan = 0
         self.emoji = emoji
         self.game_param = get_config().get("game_param", {})
 
