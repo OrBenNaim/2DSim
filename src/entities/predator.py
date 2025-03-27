@@ -4,19 +4,8 @@ from src.entities.mobile_entity import MobileEntity
 
 class Predator(MobileEntity):
     """ Predators hunt herbivores and extend their lifespan when they eat. """
-
-    @property
-    def emoji(self):
-        """
-        Returns the emoji representation of the entity.
-
-        This property provides a visual representation of the entity
-        using an emoji. Each subclass must define its own specific emoji.
-
-        Returns:
-            str: The emoji representing the entity.
-        """
-        return "🦊"
+    def __init__(self, row: int, col: int):
+        super().__init__(row, col, emoji="🦊")
 
     @property
     def target_object(self):

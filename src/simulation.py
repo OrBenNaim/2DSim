@@ -50,7 +50,6 @@ class Simulation:
 
             self.grid.cells = self.temp_grid.cells.copy()  # Update the original grid.cells at the end of the operation
 
-
     def run(self):
         """ This function handles the simulation itself """
         self.running = True

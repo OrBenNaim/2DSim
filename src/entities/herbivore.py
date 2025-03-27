@@ -1,29 +1,15 @@
 import numpy as np
-from src.constants import FOLDER_CONFIG_PATH
 from src.entities.mobile_entity import MobileEntity
 from src.entities.plant import Plant
-from src.utils import get_config
+
 
 class Herbivore(MobileEntity):
     """ Herbivore move towards plants, eat them and reproduce. """
 
     def __init__(self, row: int, col: int) -> None:
-        super().__init__(row, col)          # Initialize base constructor
+        super().__init__(row, col, emoji="🐔")          # Initialize base constructor
         self.reproduction_cooldown = 0    # Cooldown before it can reproduce again
         self.current_cooldown = 0         # Tracks cooldown progress
-
-    @property
-    def emoji(self):
-        """
-        Returns the emoji representation of the entity.
-
-        This property provides a visual representation of the entity
-        using an emoji. Each subclass must define its own specific emoji.
-
-        Returns:
-            str: The emoji representing the entity.
-        """
-        return "🐔"
 
     @property
     def target_object(self):
@@ -53,38 +39,10 @@ class Herbivore(MobileEntity):
 
     def load_entity_param_from_yaml(self):
         """ Load object's parameters (T_herbivore_steps, R_herbivore_sight, T_cooldown_steps) from .yaml file. """
-        try:
-            # Load configuration settings from a YAML file
-            config_data = get_config()
 
-            game_param = config_data.get("game_param", {})
+        super().load_entity_param_from_yaml()
 
-            if 'Herbivore' not in game_param:
-                raise ValueError("Missing 'Herbivore' parameters in game_param")
+        self.reproduction_cooldown = self.game_param['Herbivore']['T_cooldown_steps']
 
-            if 'T_Herbivore_steps' not in game_param['Herbivore']:
-                raise ValueError("Missing 'T_Herbivore_steps' for Herbivore")
-
-            if 'R_Herbivore_sight' not in game_param['Herbivore']:
-                raise ValueError("Missing 'R_Herbivore_sight' parameters in game_param")
-
-            if 'T_cooldown_steps' not in game_param['Herbivore']:
-                raise ValueError("Missing 'T_cooldown_steps' parameters in game_param")
-
-            self.lifespan = game_param['Herbivore']['T_Herbivore_steps']
-            self.current_lifespan = self.lifespan
-
-            self.radius_sight = int(game_param['Herbivore']['R_Herbivore_sight'])
-            self.reproduction_cooldown = game_param['Herbivore']['T_cooldown_steps']
-
-            if self.radius_sight <= 0:
-                raise ValueError(f"Invalid R_Predator_sight: {self.radius_sight}, must be > 0")
-
-            if self.reproduction_cooldown <= 0:
-                raise ValueError(f"Invalid T_cooldown_steps: {self.reproduction_cooldown}, must be > 0")
-
-        except FileNotFoundError as not_found:
-            raise ValueError(f"Config file not found at {FOLDER_CONFIG_PATH}") from not_found
-
-        except Exception as e:
-            raise ValueError(f"Error loading Herbivore parameters: {e}") from e
+        if self.reproduction_cooldown <= 0:
+            raise ValueError(f"Invalid T_cooldown_steps: {self.reproduction_cooldown}, must be > 0")

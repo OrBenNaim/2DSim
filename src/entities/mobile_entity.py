@@ -2,14 +2,13 @@ from abc import ABC, abstractmethod
 import numpy as np
 from src.constants import FOLDER_CONFIG_PATH
 from src.entities.entity import Entity
-from src.utils import get_config
 
 
 class MobileEntity(Entity, ABC):
     """ This class will be function as base class for mobile object such as Herbivore and Predator """
 
-    def __init__(self, row: int, col: int) -> None:
-        super().__init__(row, col)  # Initialize base constructor
+    def __init__(self, row: int, col: int, emoji) -> None:
+        super().__init__(row, col, emoji)  # Initialize base constructor
         self.radius_sight = None  # Moves towards the closest Herbivore they can see in a (R_predator_sight)
         self.speed = 1  # speed = 1 means entity moves at normal speed, speed = 2 means moves twice faster
 
@@ -30,18 +29,19 @@ class MobileEntity(Entity, ABC):
     def move(self, grid):
         """ Defines how the entity moves, Each subclass will implement this. """
 
+        if not self.is_alive():
+            return  # Don't move if the MobileEntity is dead
+
         # speed means here to moves the same amount of steps as the speed value
         for _ in range(self.speed):
-            if not self.is_alive():
-                return  # Don't move if the MobileEntity is dead
 
             # Store the old position before moving
             old_row, old_col = int(self.row), int(self.col)
 
-            nearest_plant = self.find_nearest_target_object(grid, self.target_object)
+            nearest_target = self.find_nearest_target_object(grid, self.target_object)
 
-            if nearest_plant:
-                self.move_towards(nearest_plant)
+            if nearest_target:
+                self.move_towards(nearest_target)
 
             else:
                 self.move_randomly(grid)
@@ -82,21 +82,15 @@ class MobileEntity(Entity, ABC):
             grid.cells[old_row][old_col] = None
             grid.update_empty_cells(old_row, old_col, is_occupied=False)
 
-
     def eat(self, target):
         """
         Defines the eating behavior of the MobileEntity.
 
         Subclasses must implement this method to define how the entity interacts
         with its target object upon reaching it.
-
-        - Predators consume Herbivores and reset their lifespan.
-        - Herbivores consume Plants and increase their lifespan.
         """
-
         if isinstance(target, self.target_object):
             self.current_lifespan = self.lifespan
-
 
     def find_nearest_target_object(self, grid, target_object):
         """ Finds the closest target position within sight radius."""
@@ -162,39 +156,20 @@ class MobileEntity(Entity, ABC):
             new_row, new_col = empty_neighbors[np.random.choice(len(empty_neighbors))]
             self.row, self.col = new_row, new_col
 
-
     def load_entity_param_from_yaml(self):
         """ Load object's parameters (T_plant_steps, T_herbivore_steps, R_herbivore_sight,
             T_cooldown_steps, T_predator_steps) from .yaml file.
             Each subclass will implement this. """
 
         try:
-            config_data = get_config()
+            super().load_entity_param_from_yaml()
 
-            game_param = config_data.get("game_param", {})
+            r_class_name_steps = "R_" + self.name() + "_sight"
 
-            class_name = self.name()
-
-            t_class_name_steps = "T_" + class_name + "_steps"
-            r_class_name_steps = "R_" + class_name + "_sight"
-
-            if class_name not in game_param:
-                raise ValueError(f"Missing {class_name} parameters in game_param")
-
-            if t_class_name_steps not in game_param[class_name]:
-                raise ValueError(f"Missing t_class_name_steps for {class_name}")
-
-            if r_class_name_steps not in game_param[class_name]:
+            if r_class_name_steps not in self.game_param[self.name()]:
                 raise ValueError(f"Missing {r_class_name_steps} parameters in game_param")
 
-
-            self.lifespan = game_param[class_name][t_class_name_steps]
-            self.current_lifespan = self.lifespan
-            self.radius_sight = int(game_param[class_name][r_class_name_steps])
-
-            if self.lifespan <= 0:
-                raise ValueError(f"Invalid lifespan: {self.lifespan}, must be > 0")
-
+            self.radius_sight = int(self.game_param[self.name()][r_class_name_steps])
             if self.radius_sight <= 0:
                 raise ValueError(f"Invalid R_FastPredator_sight: {self.radius_sight}, must be > 0")
 

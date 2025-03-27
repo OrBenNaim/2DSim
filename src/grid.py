@@ -1,13 +1,13 @@
 import pygame
 import numpy as np
-import yaml
-from src.constants import (SCREEN_HEIGHT, SCREEN_WIDTH, CELL_SIZE, FOLDER_CONFIG_PATH,
+from src.constants import (SCREEN_HEIGHT, SCREEN_WIDTH, CELL_SIZE,
                            WHITE_COLOR, EMPTY_CELL_COLOR)
 
 from src.entities.herbivore import Herbivore
 from src.entities.plant import Plant
 from src.entities.predator import Predator
 from src.entities.fast_predator import FastPredator
+from src.utils import get_config
 
 
 class Grid:
@@ -33,7 +33,6 @@ class Grid:
         """ Update the empty cells array when a cell becomes occupied or empty. """
         self.empty_cells[row, col] = not is_occupied
 
-
     def add_object_to_grid(self, obj_name: str, x: int, y: int) -> None:
         """ Places an object at (x, y) in the grid """
 
@@ -54,10 +53,9 @@ class Grid:
         """ Loads a seed configuration from a YAML file and initializes the entities in the simulation. """
 
         try:
-            with open(FOLDER_CONFIG_PATH, "r", encoding="utf-8") as file:
-                config = yaml.safe_load(file)
+            config_data = get_config()
 
-            seed = config.get("seed", {})
+            seed = config_data.get("seed", {})
 
             for obj_name, position_list in seed.items():
                 for pos in position_list:

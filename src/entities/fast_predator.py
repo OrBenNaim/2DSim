@@ -7,21 +7,8 @@ class FastPredator(MobileEntity):
         Predators hunt herbivores and extend their lifespan when they eat. """
 
     def __init__(self, row: int, col: int):
-        super().__init__(row, col)
+        super().__init__(row, col, emoji="🦊")
         self.speed = 2      # Moves twice faster
-
-    @property
-    def emoji(self):
-        """
-        Returns the emoji representation of the entity.
-
-        This property provides a visual representation of the entity
-        using an emoji. Each subclass must define its own specific emoji.
-
-        Returns:
-            str: The emoji representing the entity.
-        """
-        return "🦊"
 
     @property
     def target_object(self):
