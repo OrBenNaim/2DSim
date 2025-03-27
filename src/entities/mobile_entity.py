@@ -51,7 +51,6 @@ class MobileEntity(Entity, ABC):
 
             self.update_position_on_grid(grid, old_pos, new_pos)
 
-
     def update_position_on_grid(self, grid, old_pos: tuple[int, int], new_pos: tuple[int, int]):
         """
         Updates the entity's position on the grid.
