@@ -26,6 +26,10 @@ class Entity(ABC):
         """ Decrease current_lifespan by one """
         self.current_lifespan -= 1
 
+    def name(self):
+        """ Get the object name """
+        return self.__class__.__name__
+
     def load_entity_param_from_yaml(self):
         """ Load object's parameters (T_Object_steps) from .yaml file.
             Each subclass from MobileEntity class will implement this.
@@ -48,7 +52,3 @@ class Entity(ABC):
 
         except Exception as e:
             raise ValueError(f"Error loading Predator parameters: {e}") from e
-
-    def name(self):
-        """ Get the object name """
-        return self.__class__.__name__

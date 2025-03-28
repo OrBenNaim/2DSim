@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from src.constants import FOLDER_CONFIG_PATH
 from src.entities.entity import Entity
+from src.utils import get_target_indices
 
 
 class MobileEntity(Entity, ABC):
@@ -106,13 +107,8 @@ class MobileEntity(Entity, ABC):
         # Extract the relevant subgrid (search window)
         subgrid = grid.cells[min_starting_row:max_starting_row, min_starting_col:max_starting_col]
 
-        # Create a boolean mask to identify cells that are instances of the target_object
-        mask = np.vectorize(lambda cell: isinstance(cell, target_object))(subgrid)
+        target_indices = get_target_indices(grid, target_object)
 
-        # Get the row and column indices where the target objects are present
-        target_indices = np.nonzero(mask)
-
-        # Check if there are any target objects
         if target_indices[0].size > 0:
 
             # Calculate distances for all target objects at once
