@@ -35,7 +35,7 @@ class Simulation:
                     continue    # Pass for empty cells
 
                 if not obj.is_alive():
-                    continue    # Pass for static object like Tree Or Rock in the future
+                    continue    # Pass for a static object like Tree Or Rock in the future
 
                 obj.decrease_current_lifespan()     # Reduce object's lifespan
 
@@ -84,7 +84,7 @@ class Simulation:
         - MOUSEBUTTONDOWN: Toggles the state of the cell that the mouse was clicked on.
         - KEYDOWN:
             - ENTER: Starts the simulation.
-            - SPACE: Stops the simulation.
+            - SPACE: Stop the simulation.
         """
 
         for event in pygame.event.get():
