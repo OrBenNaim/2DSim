@@ -7,11 +7,11 @@ from src.entities.plant import Plant
 
 class Herbivore(Entity):
     """ Herbivore move towards plants, eat them and reproduce. """
-    def __init__(self, row: int, col: int) -> None:
-        super().__init__(row, col)          # Initialize base constructor
-        self.reproduction_cooldown = 0      # Cooldown before it can reproduce again
-        self.current_cooldown = 0           # Tracks cooldown progress
 
+    def __init__(self, row: int, col: int) -> None:
+        super().__init__(row, col)  # Initialize base constructor
+        self.reproduction_cooldown = 0  # Cooldown before it can reproduce again
+        self.current_cooldown = 0  # Tracks cooldown progress
 
     def move(self, grid):
         """ Move towards the closest plant they can see in a (herbivore_sight) radius
@@ -32,9 +32,9 @@ class Herbivore(Entity):
 
         # Check for reproduction only if we moved to a new position with another herbivore
         new_pos_occupied_by_herbivore = (
-                            (self.row != old_row or self.col != old_col) and
-                            isinstance(grid.cells[self.row][self.col], Herbivore) and
-                           grid.cells[self.row][self.col] is not self
+                (self.row != old_row or self.col != old_col) and
+                isinstance(grid.cells[self.row][self.col], Herbivore) and
+                grid.cells[self.row][self.col] is not self
         )
 
         # Update the grid: vacate old position and occupy new position
@@ -42,32 +42,26 @@ class Herbivore(Entity):
 
             # Herbivore reaches another herbivore
             if new_pos_occupied_by_herbivore:
-                self.reproduce(grid)                    # Create new Herbivore in a random neighboring cell
-                grid.cells[self.row][self.col] = self   # Move herbivore to his next location on the grid
-
+                self.reproduce(grid)  # Create new Herbivore in a random neighboring cell
+                grid.cells[self.row][self.col] = self  # Move the herbivore to his next location on the grid
 
             # Herbivore reaches Plant
             elif isinstance(grid.cells[self.row][self.col], Plant):
-                grid.cells[self.row][self.col] = self       # Move herbivore to his next location on the grid
-                self.current_lifespan = self.lifespan       # Refuel lifespan
-
+                grid.cells[self.row][self.col] = self  # Move the herbivore to his next location on the grid
+                self.current_lifespan = self.lifespan  # Refuel lifespan
 
             # Herbivore moves to empty cell
             elif grid.cells[self.row][self.col] is None:
-                grid.cells[self.row][self.col] = self       # Move herbivore to his next location on the grid
+                grid.cells[self.row][self.col] = self  # Move the herbivore to his next location on the grid
                 grid.update_empty_cells(self.row, self.col, is_occupied=True)
-
 
             # If Herbivore reaches Predator -> Herbivore dies (clear old position)
             else:
                 del grid.cells[old_row][old_col]
 
-
-
             # For all cases -> clear herbivore's old position on grid.cells
             grid.cells[old_row][old_col] = None
             grid.update_empty_cells(old_row, old_col, is_occupied=False)
-
 
     def find_nearest_plant(self, grid):
         """Finds the closest plant within sight radius."""
@@ -97,7 +91,6 @@ class Herbivore(Entity):
 
         return closest_plant
 
-
     def reproduce(self, grid) -> None:
         """
         Herbivores reproduce when reaching another herbivore,
@@ -118,7 +111,6 @@ class Herbivore(Entity):
             self.current_cooldown = self.reproduction_cooldown
             grid.cells[new_row, new_col] = Herbivore(new_row, new_col)
             grid.update_empty_cells(new_row, new_col, is_occupied=True)  # Mark cell as occupied
-
 
     def load_entity_param_from_yaml(self):
         """ Load object's parameters (T_herbivore_steps, R_herbivore_sight, T_cooldown_steps) from .yaml file. """
@@ -146,7 +138,6 @@ class Herbivore(Entity):
 
             self.herbivore_sight = game_param['Herbivore']['R_herbivore_sight']
             self.reproduction_cooldown = game_param['Herbivore']['T_cooldown_steps']
-
 
         except FileNotFoundError:
             raise ValueError(f"Config file not found at {FOLDER_CONFIG_PATH}")
