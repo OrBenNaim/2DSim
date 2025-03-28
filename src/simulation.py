@@ -1,9 +1,11 @@
 import sys
 import time
+import numpy as np
 import pygame
 from src.grid import Grid
 from src.constants import *
 from src.utils import get_file_from_initial_patterns_folder
+from scipy.signal import convolve2d
 
 
 class Simulation:
@@ -16,51 +18,28 @@ class Simulation:
         self.temp_grid = Grid()     # It will be used at the update() function
         self.running = False        # This flag indicates if the simulation running or not
 
-    def count_live_neighbors(self, ref_row: int, ref_col: int) -> int:
+    def count_live_neighbors(self) -> np.ndarray:
         """ Counts how many live neighbors exist for a specific cell """
-        counter = 0
+        kernel = np.array([
+            [1, 1, 1],
+            [1, 0, 1],
+            [1, 0, 1]
+        ])
 
-        # Neighbor position shifts (relative to the cell)
-        neighbors_shifts = [
-            (-1, -1), (-1, 0), (-1, 1),  # upper_left, upper_mid, upper_right
-            (0, -1), (0, 1),  # mid_left, mid_right
-            (1, -1), (1, 0), (1, 1)  # lower_left, lower_mid, lower_right
-        ]
-
-        # Loop through the 8 neighbors
-        for shift_row, shift_col in neighbors_shifts:
-            neighbor_row_idx, neighbor_col_idx = ref_row + shift_row, ref_col + shift_col
-
-            # Validate that the neighbor is within bounds
-            if 0 <= neighbor_row_idx < self.grid.rows and 0 <= neighbor_col_idx < self.grid.columns:
-                counter += self.grid.cells[neighbor_row_idx, neighbor_col_idx]
-
-        return counter
+        neighbors_grid = convolve2d(self.grid.cells, kernel, mode='same', boundary='fill', fillvalue=0)
+        return neighbors_grid
 
     def update_grid(self) -> None:
         """ Updates the grid to the next state according to the game rules """
         if self.running:
 
-            rows, cols = self.grid.cells.shape
+            neighbors_grid = self.count_live_neighbors()
+            cells_values = self.grid.cells
 
-            for row in range(rows):
-                for col in range(cols):
-                    cnt_live_neighbors = self.count_live_neighbors(row, col)
-                    cell_value = self.grid.cells[row][col]
-
-                    if cell_value == 1:
-                        if cnt_live_neighbors not in (2, 3):
-                            self.temp_grid.cells[row][col] = 0  # Cell dies
-
-                        else:
-                            self.temp_grid.cells[row][col] = 1  # Cell lives
-
-                    else:
-                        if cnt_live_neighbors == 3:
-                            self.temp_grid.cells[row][col] = 1  # Cell is born
-
-                        else:
-                            self.temp_grid.cells[row][col] = 0  # Cell dies
+            self.temp_grid.cells = np.where(
+                ((cells_values == 1) & ((neighbors_grid == 2) | (neighbors_grid == 3))
+                 |
+                ((cells_values == 0) | (neighbors_grid == 3)), 1, 0))
 
             self.grid.cells = self.temp_grid.cells.copy()  # Update the original grid.cells at the end of the operation
 
