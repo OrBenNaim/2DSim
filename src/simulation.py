@@ -22,7 +22,6 @@ class Simulation:
         self.temp_grid = Grid()     # It will be used at the update() function
         self.running = False        # This flag indicates if the simulation running or not
 
-
     def event_handler(self):
         """
         Handles various events in the game, including quitting, mouse clicks, and key presses.
@@ -58,7 +57,6 @@ class Simulation:
                     self.running = False
                     pygame.display.set_caption("Game of Life has stopped")
 
-
     def update_grid(self) -> None:
         """ Updates the grid to the next state according to the game rules """
         if self.running:
@@ -83,11 +81,9 @@ class Simulation:
 
             self.grid.cells = self.temp_grid.cells.copy()  # Update the original grid.cells at the end of the operation
 
-
     def load_seed_from_yaml(self):
         if not self.running:
             self.grid.load_seed()
-
 
     def run(self):
         """ This function handles the simulation itself """
