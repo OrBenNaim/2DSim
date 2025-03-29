@@ -60,10 +60,9 @@ logging.basicConfig(
 def log_msg(event_name: type(EventName), message: str, log_to_file=True, log_to_console=True):
     """ Handles logging alerts to the console and optionally to a file. """
     formatted_message = f"[ALERT] {event_name.value}: {message}"
-    print(formatted_message)  # Print to console
 
     if log_to_file:
         logging.info(formatted_message)  # Log to file
 
     if log_to_console:
-        print(logging.info(formatted_message))  # Print to console
+        print(formatted_message)  # Print to console

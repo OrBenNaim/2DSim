@@ -21,7 +21,7 @@ class EventsManager:
         The dictionary keys represent event names (EventName objects), and the values
         are lists of observers subscribed to those events.
         """
-        self._observers: Dict[EventName, List[Observer]] = {}
+        self.observers: Dict[EventName, List[Observer]] = {}
         self.grid = grid
 
     def add_observer(self, observer: Observer):
@@ -32,13 +32,12 @@ class EventsManager:
 
         Args:
             observer (Observer): The observer instance to subscribe.
-            event_name (EventName): The event to which the observer is subscribing.
         """
-        if observer.event_name not in self._observers:
-            self._observers[observer.event_name] = []
+        if observer.event_name not in self.observers:
+            self.observers[observer.event_name] = []
 
-        if observer not in self._observers[observer.event_name]:
-            self._observers[observer.event_name].append(observer)
+        if observer not in self.observers[observer.event_name]:
+            self.observers[observer.event_name].append(observer)
 
     def remove_observer(self, observer: Observer, event_name: EventName):
         """
@@ -52,11 +51,11 @@ class EventsManager:
             event_name (EventName): The event from which the observer will be unsubscribed.
         """
         try:
-            self._observers[event_name].remove(observer)
+            self.observers[event_name].remove(observer)
         except (ValueError, KeyError):
             pass  # Ignore if observer is not in the list or event_name is not found
 
-    def notify(self, event_name: EventName):
+    def notify(self, event_name: EventName, data=None):
         """
         Notifies all observers subscribed to a specific event.
 
@@ -64,9 +63,14 @@ class EventsManager:
 
         Args:
             event_name (EventName): The event for which observers should be notified.
+            :param event_name:
+            :param data:
         """
-        for observer in self._observers.get(event_name, []):
-            observer.update()  # Assuming Observer class has an update method
+        for observer in self.observers.get(event_name, []):
+            observer.update(data)  # Assuming Observer class has an update method
+
+            if event_name in (EventName.HERBIVORE_EXTINCTION, EventName.PLANT_OVERGROWTH):
+                self.remove_observer(observer, event_name)
 
     #--------------- Methods of business logic can notify subscribers about changes -----------------
     def check_herbivore_extinction(self) -> None:
@@ -102,7 +106,8 @@ class EventsManager:
         # If the number of plants in the grid exceeds the defined threshold,
         # notify all the relevant observers
         if plant_count / total_cells > overgrown:
-            self.notify(EventName.PLANT_OVERGROWTH)
+            self.notify(EventName.PLANT_OVERGROWTH, overgrown)
 
-    def check_predator_eats_herbivore(self):
+    def predator_eats_herbivore(self):
+        """ Update all Observers that a Predator eats a Herbivore """
         self.notify(EventName.PREDATOR_EATS_HERBIVORE)

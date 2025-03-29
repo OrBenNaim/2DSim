@@ -2,9 +2,9 @@ import sys
 import time
 import numpy as np
 import pygame
+from src.entities.herbivore import Herbivore
 from src.entities.mobile_entity import MobileEntity
 from src.events.event_manager import EventsManager
-from src.events.event_name import EventName
 from src.events.observers import HerbivoreExtinctionAlert, PredatorEatsHerbivoreAlert, PlantsExceedsAlert
 from src.grid import Grid
 from src.constants import DELAY, BG_COLOR, SCREEN_WIDTH, SCREEN_HEIGHT
@@ -51,9 +51,9 @@ class Simulation:
                 if isinstance(obj, MobileEntity):
                     obj.move(self.temp_grid)  # Let the herbivore\predator move
 
-                self.events_manager.check_herbivore_extinction()
-                #self.events_manager.check_predator_eats_herbivore()
-                self.events_manager.check_plant_overgrowth(overgrown=0.9)
+                    if not isinstance(obj, Herbivore):
+                        if obj.current_lifespan == obj.lifespan:
+                            self.events_manager.predator_eats_herbivore()
 
             self.temp_grid.add_random_plant()  # Plants appear randomly at empty spaces
 
@@ -64,30 +64,21 @@ class Simulation:
         self.running = True
         self.grid.load_param_from_yaml()  # Initialize the grid for the first time from .yaml file configuration
 
-        herbivore_extinct_alert = HerbivoreExtinctionAlert(event_name=EventName.HERBIVORE_EXTINCTION,
-                                                           msg="All Herbivores are extinct")
-
-        self.events_manager.add_observer(observer=herbivore_extinct_alert)
-
-        predator_eats_herbivore_alert = PredatorEatsHerbivoreAlert(event_name=EventName.PREDATOR_EATS_HERBIVORE,
-                                                                   msg="Predator eat Herbivore")
-
-        self.events_manager.add_observer(observer=predator_eats_herbivore_alert)
-
-        plants_exceeds_alert = PlantsExceedsAlert(event_name=EventName.PLANT_OVERGROWTH,
-                                                  msg="Plants exceeds 90% of the grid space")
-
-        self.events_manager.add_observer(observer=plants_exceeds_alert)
+        self.create_alerts_observers()
 
         # Simulation Loop
         while True:
-            # 1. Event Handling
-            self.event_handler()
+            # 1. User's Event Handling
+            self.user_event_handler()
 
             # 2. Updating the state of the grid
             self.update_grid()
 
-            # 3. Drawing
+            # 3. Check predefined events of the game
+            self.events_manager.check_herbivore_extinction()
+            self.events_manager.check_plant_overgrowth(overgrown=0.9)
+
+            # 4. Drawing
             self.screen.fill(BG_COLOR)
             self.grid.draw(self.screen)
 
@@ -95,7 +86,31 @@ class Simulation:
 
             time.sleep(DELAY)  # Add time DELAY
 
-    def event_handler(self):
+    def create_alerts_observers(self):
+        """
+        Creates and registers alert observers for predefined simulation events.
+
+        This method initializes alert observers for specific events and registers
+        them with the `events_manager`, which acts as the event dispatcher.
+
+        The following alerts are created and added as observers:
+
+        - `HerbivoreExtinctionAlert`: Triggers when no more Herbivores are alive.
+        - `PredatorEatsHerbivoreAlert`: Triggers when a Predator eats a Herbivore.
+        - `PlantsExceedsAlert`: Triggers when plants exceed 90% of the grid space.
+
+        Each observer is associated with an event type from `EventName` and a corresponding message."""
+
+        herbivore_extinct_alert = HerbivoreExtinctionAlert()
+        self.events_manager.add_observer(observer=herbivore_extinct_alert)
+
+        predator_eats_herbivore_alert = PredatorEatsHerbivoreAlert()
+        self.events_manager.add_observer(observer=predator_eats_herbivore_alert)
+
+        plants_exceeds_alert = PlantsExceedsAlert()
+        self.events_manager.add_observer(observer=plants_exceeds_alert)
+
+    def user_event_handler(self):
         """
         Handles various events in the game, including quitting, mouse clicks, and key presses.
 

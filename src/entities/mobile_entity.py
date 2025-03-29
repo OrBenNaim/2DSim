@@ -96,16 +96,9 @@ class MobileEntity(Entity, ABC):
         """ Finds the closest target position within sight radius."""
         closest_target_pos = None
 
-        rows, cols = grid.cells.shape  # Get dimensions from NumPy array
-
         min_starting_row = max(0, self.row - self.radius_sight)
-        max_starting_row = min(rows, self.row + self.radius_sight + 1)
 
         min_starting_col = max(0, self.col - self.radius_sight)
-        max_starting_col = min(cols, self.col + self.radius_sight + 1)
-
-        # Extract the relevant subgrid (search window)
-        subgrid = grid.cells[min_starting_row:max_starting_row, min_starting_col:max_starting_col]
 
         target_indices = get_target_indices(grid, target_object)
 
