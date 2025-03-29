@@ -1,12 +1,13 @@
+import logging
+import os
 import numpy as np
 import yaml
 from src.constants import FOLDER_CONFIG_PATH
-
+from src.events.event_name import EventName
 
 # Load the configuration once at the start
 with open(FOLDER_CONFIG_PATH, "r", encoding="utf-8") as file:
     CONFIG_DATA = yaml.safe_load(file)
-
 
 def get_config():
     """
@@ -43,3 +44,26 @@ def get_target_indices(grid, target_object):
     # Get the row and column indices where the target objects are present
     target_indices = np.nonzero(mask)
     return target_indices
+
+
+# Ensure the logs directory exists
+LOG_DIR = "logs"
+os.makedirs(LOG_DIR, exist_ok=True)
+
+# Configure logging
+logging.basicConfig(
+    filename=os.path.join(LOG_DIR, "simulation_alerts.log"),
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
+
+def log_msg(event_name: type(EventName), message: str, log_to_file=True, log_to_console=True):
+    """ Handles logging alerts to the console and optionally to a file. """
+    formatted_message = f"[ALERT] {event_name.value}: {message}"
+    print(formatted_message)  # Print to console
+
+    if log_to_file:
+        logging.info(formatted_message)  # Log to file
+
+    if log_to_console:
+        print(logging.info(formatted_message))  # Print to console
