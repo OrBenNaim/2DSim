@@ -6,7 +6,7 @@ from src.utils import get_target_indices
 
 
 class MobileEntity(Entity, ABC):
-    """ This class will be function as base class for mobile object such as Herbivore and Predator """
+    """ This class will be function as base class for a mobile object such as Herbivore and Predator """
 
     def __init__(self, row: int, col: int, emoji) -> None:
         super().__init__(row, col, emoji)  # Initialize base constructor
@@ -33,7 +33,7 @@ class MobileEntity(Entity, ABC):
         if not self.is_alive():
             return  # Don't move if the MobileEntity is dead
 
-        # speed means here to moves the same amount of steps as the speed value
+        # speed means here to move the same number of steps as the speed value
         for _ in range(self.speed):
 
             # Store the old position before moving
@@ -58,7 +58,6 @@ class MobileEntity(Entity, ABC):
 
         If the entity reaches a target, appropriate actions are taken.
         This avoids code duplication between Predator, FastPredator, and Herbivore.
-
         Args:
             grid: The simulation grid.
             old_pos (tuple[int, int]): The entity's previous position (row, col).
@@ -96,11 +95,18 @@ class MobileEntity(Entity, ABC):
         """ Finds the closest target position within sight radius."""
         closest_target_pos = None
 
+        rows, cols = grid.cells.shape  # Get dimensions from NumPy array
+
         min_starting_row = max(0, self.row - self.radius_sight)
+        max_starting_row = min(rows, self.row + self.radius_sight + 1)
 
         min_starting_col = max(0, self.col - self.radius_sight)
+        max_starting_col = min(cols, self.col + self.radius_sight + 1)
 
-        target_indices = get_target_indices(grid, target_object)
+        # Extract the relevant subgrid (search window)
+        subgrid_cells = grid.cells[min_starting_row:max_starting_row, min_starting_col:max_starting_col]
+
+        target_indices = get_target_indices(subgrid_cells, target_object)
 
         if target_indices[0].size > 0:
 
@@ -152,14 +158,14 @@ class MobileEntity(Entity, ABC):
         try:
             super().load_entity_param_from_yaml()
 
-            r_class_name_steps = "R_" + self.name() + "_sight"
+            r_class_name_sight = "R_" + self.name() + "_sight"
 
-            if r_class_name_steps not in self.game_param[self.name()]:
-                raise ValueError(f"Missing {r_class_name_steps} parameters in game_param")
+            if r_class_name_sight not in self.game_param[self.name()]:
+                raise ValueError(f"Missing {r_class_name_sight} parameters in game_param")
 
-            self.radius_sight = int(self.game_param[self.name()][r_class_name_steps])
+            self.radius_sight = int(self.game_param[self.name()][r_class_name_sight])
             if self.radius_sight <= 0:
-                raise ValueError(f"Invalid R_FastPredator_sight: {self.radius_sight}, must be > 0")
+                raise ValueError(f"{r_class_name_sight}: {self.radius_sight}, must be > 0")
 
         except FileNotFoundError as not_found:
             raise ValueError(f"Config file not found at {FOLDER_CONFIG_PATH}") from not_found
