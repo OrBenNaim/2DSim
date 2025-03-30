@@ -8,7 +8,7 @@ class EventName(Enum):
     alerts are consistent across the system.
     """
 
-    PREDATOR_EATS_HERBIVORE = "Predator eats Herbivore"
-    PLANT_OVERGROWTH = "Plant Overgrowth"
-    HERBIVORE_EXTINCTION = "Herbivore Extinction"
+    LIVE_ORGANISMS = "Live Organisms"
+    HERBIVORE_REPRODUCTIONS = "Herbivore Reproductions"
+    INTERESTING_EVENTS = "Interesting Events"
     # Add more event names as needed
