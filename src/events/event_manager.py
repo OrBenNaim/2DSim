@@ -81,7 +81,7 @@ class EventsManager:
             entity_obj = self.grid.existing_entities[entity_name]
 
             # Get the indices of all entity_obj in the grid
-            entity_indices = get_target_indices(self.grid, entity_obj)
+            entity_indices = get_target_indices(self.grid.cells, entity_obj)
 
             # Count the number of entity_obj
             entity_obj_count = len(entity_indices[0])  # Number of row indices found
@@ -91,8 +91,7 @@ class EventsManager:
         # If no live organisms are found, notify all the relevant observers
         if len(live_organisms_dict) != 0:
             self.notify(event_name=EventName.LIVE_ORGANISMS, generation_counter=generation_cnt,
-                        stats_dict=live_organisms_dict,
-                        )
+                        stats_dict=live_organisms_dict)
 
     def herbivore_reproduction(self, generation_cnt: int) -> None:
         """ """
