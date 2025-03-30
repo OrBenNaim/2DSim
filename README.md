@@ -4,16 +4,15 @@
 - This project simulates Conway's Game of Life, a cellular automaton devised by mathematician John Conway. The simulation follows the game rules where cells on a grid evolve based on their neighbors. The project uses Python with pygame for visualization.
 
 **Details*:* 
-- A branch called “Sprint-4”, extending the previous branch.
-Implement an alerting mechanism that allows the system to trigger alerts based on predefined events.
-The mechanism should be designed to make it easy to add new alerts in the future.
-Implement the following alerts:
-  1. Alert when no more of a certain entity is alive.
-  2. Alert when a Predator eats an Herbivore.
-  3. Alert when the number of plants exceeds 90% of the grid space.
-  4. The alerts should be printed to the console or logged appropriately.
+1. A branch called “Sprint-5,” extending the previous branch.
+2. Implement data collection within the simulation to track relevant statistics—implement these as alerts.
+3. Generate a line plot depicting the number of live organisms of each type over time during the simulation.
+4. Generate a line plot depicting the number of Herbivore reproductions throughout the simulation.
+5. Implement a timeline summarizing interesting “events” (like reproductions, animal consumption, or any other appropriate events).
+6. Use appropriate visualization libraries (e.g., Matplotlib) to generate the plots.
+7. Ensure the statistics and plots are generated after the simulation run and are saved to files.
 
-   
+
 ## Features
 - **Grid Visualization**: Displays a grid of cells that can be toggled between alive and dead.
 - **Simulation Control**: Start, stop, and pause the simulation.
