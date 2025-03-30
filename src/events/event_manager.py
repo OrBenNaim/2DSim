@@ -1,5 +1,4 @@
 from typing import Dict, List
-from src.entities.plant import Plant
 from src.events.event_name import EventName
 from src.events.observers import Observer
 from src.utils import get_target_indices
@@ -54,22 +53,26 @@ class EventsManager:
         except (ValueError, KeyError):
             pass  # Ignore if observer is not in the list or event_name is not found
 
-    def notify(self, event_name: EventName, data=None):
+    def notify(self, event_name: EventName, generation_counter: int, stats_dict: Dict[str, int]=None):
         """
         Notifies all observers subscribed to a specific event.
-
         Each observer will receive the event notification, allowing them to react accordingly.
-
         Args:
-            event_name (EventName): The event for which observers should be notified.
-            :param event_name:
-            :param data:
+            :param event_name: The event for which observers should be notified.
+            :param stats_dict:
+            :param generation_counter:
         """
         for observer in self.observers.get(event_name, []):
-            observer.update(data)  # Assuming Observer class has an update method
+            observer.update(generation_counter, stats_dict)  # Assuming Observer class has an update method
+
+    def plot_all_graphs(self):
+        for event_name, observers in self.observers.items():
+            for observer in observers:
+                print(f"Plotting for {observer.__class__.__name__}")
+                observer.plot_df()
 
     #--------------- Methods of business logic can notify subscribers about changes -----------------
-    def check_live_organisms(self, cnt_generation: int) -> None:
+    def check_live_organisms(self, generation_cnt: int) -> None:
         """
         """
         live_organisms_dict = {}
@@ -86,14 +89,16 @@ class EventsManager:
             live_organisms_dict[entity_name] = entity_obj_count
 
         # If no live organisms are found, notify all the relevant observers
-        if len(live_organisms_dict) is not 0:
-            self.notify(event_name=EventName.LIVE_ORGANISMS, data=(live_organisms_dict, cnt_generation))
+        if len(live_organisms_dict) != 0:
+            self.notify(event_name=EventName.LIVE_ORGANISMS, generation_counter=generation_cnt,
+                        stats_dict=live_organisms_dict,
+                        )
 
-    def herbivore_reproduction(self, cnt_generation: int) -> None:
+    def herbivore_reproduction(self, generation_cnt: int) -> None:
         """ """
-        self.notify(EventName.HERBIVORE_REPRODUCTIONS, cnt_generation)
+        self.notify(event_name=EventName.HERBIVORE_REPRODUCTIONS, generation_counter=generation_cnt)
 
-    def check_interesting_events(self, cnt_generation: int) -> None:
+    def check_interesting_events(self, generation_cnt: int) -> None:
         """
         """
 

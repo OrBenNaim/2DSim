@@ -10,7 +10,7 @@ seed:
     - { x: 7, y: 10}
 game_param:
   Plant:
-    T_Plant_steps: 200
+    T_Plant_steps: 25
   Herbivore:
     T_Herbivore_steps: 25
     R_Herbivore_sight: 3

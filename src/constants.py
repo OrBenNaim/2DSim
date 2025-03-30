@@ -12,4 +12,8 @@ WHITE_COLOR = (255, 255, 255)
 
 FOLDER_CONFIG_PATH = "config.yaml"
 
+FOLDER_PLOTS_PATH = "plots"
+
+LOG_DIR = "logs"
+
 DELAY = 1   # delay in seconds

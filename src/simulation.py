@@ -16,7 +16,7 @@ class Simulation:
 
     def __init__(self) -> None:
         """Initialize the game simulation """
-        self.running = False
+        self.sim_status = None
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
         pygame.display.set_caption("Nature Simulation")
@@ -25,11 +25,12 @@ class Simulation:
         self.temp_grid = Grid()  # It will be used at the update() function
 
         self.events_manager = EventsManager(self.grid)
+        self.cnt_generation = 0
 
     def update_grid(self) -> None:
         """ Updates the grid to the next state according to the game rules """
 
-        if self.running:
+        if self.sim_status == "play":
             self.temp_grid.cells = self.grid.cells.copy()  # Sync at start
 
             # The order of operations based on the place in the grid (left to right)
@@ -53,7 +54,7 @@ class Simulation:
 
                     if not isinstance(obj, Herbivore):
                         if obj.current_lifespan == obj.lifespan:
-                            self.events_manager.predator_eats_herbivore()
+                            self.events_manager.herbivore_reproduction(self.cnt_generation)
 
             self.temp_grid.add_random_plant()  # Plants appear randomly at empty spaces
 
@@ -61,16 +62,14 @@ class Simulation:
 
     def run(self):
         """ This function handles the simulation itself """
-        self.running = True
+        self.sim_status = "play"
         self.grid.load_param_from_yaml()  # Initialize the grid for the first time from .yaml file configuration
 
         self.create_alerts_observers()
 
-        cnt_generation = 0
-
         # Simulation Loop
-        while True:
-            cnt_generation += 1
+        while self.sim_status != "stop":
+            self.cnt_generation += 1
 
             # 1. User's Event Handling
             self.user_event_handler()
@@ -79,8 +78,8 @@ class Simulation:
             self.update_grid()
 
             # 3. Check predefined events of the game
-            self.events_manager.check_live_organisms(cnt_generation)
-            self.events_manager.check_plant_overgrowth(overgrown=0.9)
+            self.events_manager.check_live_organisms(self.cnt_generation)
+            self.events_manager.herbivore_reproduction(self.cnt_generation)
 
             # 4. Drawing
             self.screen.fill(BG_COLOR)
@@ -89,6 +88,8 @@ class Simulation:
             pygame.display.update()
 
             time.sleep(DELAY)  # Add time DELAY
+
+        self.events_manager.plot_all_graphs()
 
     def create_alerts_observers(self):
         """
@@ -105,14 +106,15 @@ class Simulation:
 
         Each observer is associated with an event type from `EventName` and a corresponding message."""
 
-        herbivore_extinct_alert = HerbivoreExtinctionAlert()
-        self.events_manager.add_observer(observer=herbivore_extinct_alert)
 
-        predator_eats_herbivore_alert = PredatorEatsHerbivoreAlert()
-        self.events_manager.add_observer(observer=predator_eats_herbivore_alert)
+        live_organisms_observer = LiveOrganismsObserver()
+        self.events_manager.add_observer(observer=live_organisms_observer)
 
-        plants_exceeds_alert = PlantsExceedsAlert()
-        self.events_manager.add_observer(observer=plants_exceeds_alert)
+        herbivore_reproductions_observer = HerbivoreReproductionsObserver()
+        self.events_manager.add_observer(observer=herbivore_reproductions_observer)
+
+        interesting_events_observer = InterestingEventsObserver()
+        self.events_manager.add_observer(observer=interesting_events_observer)
 
     def user_event_handler(self):
         """
@@ -139,9 +141,12 @@ class Simulation:
             elif event.type == pygame.KEYDOWN:
 
                 if event.key == pygame.K_RETURN:  # Start the simulation if the user presses the 'Enter' key
-                    self.running = True
+                    self.sim_status = "play"
                     pygame.display.set_caption("Game of Life is running")
 
-                elif event.key == pygame.K_SPACE:  # Stop the simulation if the user presses the 'Space' key
-                    self.running = False
+                elif event.key == pygame.K_SPACE:  # Pause the simulation if the user presses the 'Space' key
+                    self.sim_status = "pause"
                     pygame.display.set_caption("Game of Life has stopped")
+
+                elif event.key == pygame.K_ESCAPE:  # Stop the simulation if the user presses the 'Esc' key
+                    self.sim_status = "stop"
