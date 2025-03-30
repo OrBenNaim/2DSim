@@ -164,14 +164,14 @@ class MobileEntity(Entity, ABC):
         try:
             super().load_entity_param_from_yaml()
 
-            r_class_name_steps = "R_" + self.name() + "_sight"
+            r_class_name_sight = "R_" + self.name() + "_sight"
 
-            if r_class_name_steps not in self.game_param[self.name()]:
-                raise ValueError(f"Missing {r_class_name_steps} parameters in game_param")
+            if r_class_name_sight not in self.game_param[self.name()]:
+                raise ValueError(f"Missing {r_class_name_sight} parameters in game_param")
 
-            self.radius_sight = int(self.game_param[self.name()][r_class_name_steps])
+            self.radius_sight = int(self.game_param[self.name()][r_class_name_sight])
             if self.radius_sight <= 0:
-                raise ValueError(f"Invalid R_FastPredator_sight: {self.radius_sight}, must be > 0")
+                raise ValueError(f"{r_class_name_sight}: {self.radius_sight}, must be > 0")
 
         except FileNotFoundError as not_found:
             raise ValueError(f"Config file not found at {FOLDER_CONFIG_PATH}") from not_found
