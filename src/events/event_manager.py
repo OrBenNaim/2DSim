@@ -80,7 +80,7 @@ class EventsManager:
         """
 
         # Get the indices of all Herbivores in the grid
-        herbivore_indices = get_target_indices(self.grid, Herbivore)
+        herbivore_indices = get_target_indices(self.grid.cells, Herbivore)
 
         # Count the number of herbivores
         herbivore_count = len(herbivore_indices[0])  # Number of row indices found
@@ -96,7 +96,7 @@ class EventsManager:
         """
 
         # Get the indices of all plants in the grid
-        plant_indices = get_target_indices(self.grid, Plant)
+        plant_indices = get_target_indices(self.grid.cells, Plant)
 
         # Count the number of plants
         plant_count = len(plant_indices[0])  # Number of row indices found
