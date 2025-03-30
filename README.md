@@ -4,7 +4,7 @@
 - This project simulates Conway's Game of Life, a cellular automaton devised by mathematician John Conway. The simulation follows the game rules where cells on a grid evolve based on their neighbors. The project uses Python with pygame for visualization.
 
 **Details*:* 
-- A branch called “Sprint-4”, extending the previous branch.
+- A branch called “Sprint-4,” extending the previous branch.
 Implement an alerting mechanism that allows the system to trigger alerts based on predefined events.
 The mechanism should be designed to make it easy to add new alerts in the future.
 Implement the following alerts:
