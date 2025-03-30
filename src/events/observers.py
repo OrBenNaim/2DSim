@@ -59,7 +59,7 @@ class LiveOrganismsObserver(Observer):
         """ """
         self.df.set_index("Generation").plot(marker="o", figsize=(8, 5), grid=True,
                                         title="Live Organisms Over Generations")
-        plt.xlabel("Generation")
+        plt.xlabel("Generations")
         plt.ylabel("Live Organisms Count")
         plt.legend()
         plt.savefig(self.path_to_plot_folder + "/live_organisms_per_gen.png", dpi=300)
@@ -79,8 +79,8 @@ class HerbivoreReproductionsObserver(Observer):
         """ """
         self.df.set_index("Generation").plot(marker="o", figsize=(8, 5), grid=True,
                                         title="Herbivore Reproductions Over Generations")
-        plt.xlabel("Generation")
-        plt.ylabel("herbivore_reproductions Count")
+        plt.xlabel("Generations")
+        plt.ylabel("Herbivore Reproductions Count")
         plt.legend()
         plt.savefig(self.path_to_plot_folder + "/herbivore_reproductions_per_gen.png", dpi=300)
         plt.show()
@@ -95,10 +95,3 @@ class InterestingEventsObserver(Observer):
 
     def plot_df(self):
         """ """
-        self.df.set_index("Generation").plot(marker="o", figsize=(8, 5), grid=True,
-                                        title="Live Organisms Over Generations")
-        plt.xlabel("Generation")
-        plt.ylabel("Live Organisms Count")
-        plt.legend()
-        plt.savefig(self.path_to_plot_folder + "/interesting_events.png", dpi=300)
-        plt.show()
