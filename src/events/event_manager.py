@@ -1,5 +1,4 @@
 from typing import Dict, List
-from src.entities.herbivore import Herbivore
 from src.entities.plant import Plant
 from src.events.event_name import EventName
 from src.events.observers import Observer
@@ -69,45 +68,33 @@ class EventsManager:
         for observer in self.observers.get(event_name, []):
             observer.update(data)  # Assuming Observer class has an update method
 
-            if event_name in (EventName.HERBIVORE_EXTINCTION, EventName.PLANT_OVERGROWTH):
-                self.remove_observer(observer, event_name)
-
     #--------------- Methods of business logic can notify subscribers about changes -----------------
-    def check_herbivore_extinction(self) -> None:
+    def check_live_organisms(self, cnt_generation: int) -> None:
         """
-        Checks if all herbivores have gone extinct in the grid.
-        If no herbivores are found, notify all the relevant observers.
+        """
+        live_organisms_dict = {}
+
+        for entity_name in self.grid.existing_entities:
+            entity_obj = self.grid.existing_entities[entity_name]
+
+            # Get the indices of all entity_obj in the grid
+            entity_indices = get_target_indices(self.grid, entity_obj)
+
+            # Count the number of entity_obj
+            entity_obj_count = len(entity_indices[0])  # Number of row indices found
+
+            live_organisms_dict[entity_name] = entity_obj_count
+
+        # If no live organisms are found, notify all the relevant observers
+        if len(live_organisms_dict) is not 0:
+            self.notify(event_name=EventName.LIVE_ORGANISMS, data=(live_organisms_dict, cnt_generation))
+
+    def herbivore_reproduction(self, cnt_generation: int) -> None:
+        """ """
+        self.notify(EventName.HERBIVORE_REPRODUCTIONS, cnt_generation)
+
+    def check_interesting_events(self, cnt_generation: int) -> None:
+        """
         """
 
-        # Get the indices of all Herbivores in the grid
-        herbivore_indices = get_target_indices(self.grid, Herbivore)
-
-        # Count the number of herbivores
-        herbivore_count = len(herbivore_indices[0])  # Number of row indices found
-
-        # If no herbivores are found, notify all the relevant observers
-        if herbivore_count == 0:
-            self.notify(EventName.HERBIVORE_EXTINCTION)
-
-    def check_plant_overgrowth(self, overgrown):
-        """
-        Checks if the number of plants in the grid exceeds the defined threshold
-        and notify all the relevant observers.
-        """
-
-        # Get the indices of all plants in the grid
-        plant_indices = get_target_indices(self.grid, Plant)
-
-        # Count the number of plants
-        plant_count = len(plant_indices[0])  # Number of row indices found
-
-        total_cells = self.grid.cells.size
-
-        # If the number of plants in the grid exceeds the defined threshold,
-        # notify all the relevant observers
-        if plant_count / total_cells > overgrown:
-            self.notify(EventName.PLANT_OVERGROWTH, overgrown)
-
-    def predator_eats_herbivore(self):
-        """ Update all Observers that a Predator eats a Herbivore """
-        self.notify(EventName.PREDATOR_EATS_HERBIVORE)
+        self.notify(EventName.INTERESTING_EVENTS)
