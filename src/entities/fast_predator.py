@@ -3,7 +3,7 @@ from src.entities.mobile_entity import MobileEntity
 
 
 class FastPredator(MobileEntity):
-    """ FastPredator acts as Predator except it moves twice faster.
+    """ FastPredator acts as a Predator except it moves twice faster.
         Predators hunt herbivores and extend their lifespan when they eat. """
 
     def __init__(self, row: int, col: int):
