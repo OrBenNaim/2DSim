@@ -18,39 +18,31 @@ class Observer(ABC):
         """
 
 
-class HerbivoreExtinctionAlert(Observer):
+class LiveOrganismsObserver(Observer):
     """
-    Observer that triggers an alert when herbivores go extinct.
-    Logs a message when notified of a herbivore extinction event.
     """
-    event_name = EventName.HERBIVORE_EXTINCTION
+    event_name = EventName.LIVE_ORGANISMS
 
     def update(self, data):
-        """ Handles the herbivore extinction event by logging a message. """
+        """  """
         log_msg(event_name=self.event_name, message="All Herbivores are extinct")
 
 
-class PredatorEatsHerbivoreAlert(Observer):
+class HerbivoreReproductionsObserver(Observer):
     """
-    Observer that triggers an alert when a predator eats a herbivore.
-
-    Logs a message when notified of a predator consuming a herbivore.
     """
-    event_name = EventName.PREDATOR_EATS_HERBIVORE
+    event_name = EventName.HERBIVORE_REPRODUCTIONS
 
     def update(self, data):
-        """ Handles the predator eating herbivore event by logging a message. """
+        """  """
         log_msg(event_name=self.event_name, message="Predator Eats Herbivore")
 
 
-class PlantsExceedsAlert(Observer):
+class InterestingEventsObserver(Observer):
     """
-    Observer that triggers an alert when the plant population exceeds a certain limit.
-    Logs a message when notified of excessive plant growth.
     """
-    event_name = EventName.PLANT_OVERGROWTH
+    event_name = EventName.INTERESTING_EVENTS
 
     def update(self, data):
-        """ Handles the excessive plant growth event by logging a message. """
-        msg = f"Plants exceeds {data * 100}% of the grid space"
-        log_msg(PlantsExceedsAlert.event_name, msg)
+        """  """
+

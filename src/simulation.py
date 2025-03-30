@@ -5,7 +5,7 @@ import pygame
 from src.entities.herbivore import Herbivore
 from src.entities.mobile_entity import MobileEntity
 from src.events.event_manager import EventsManager
-from src.events.observers import HerbivoreExtinctionAlert, PredatorEatsHerbivoreAlert, PlantsExceedsAlert
+from src.events.observers import LiveOrganismsObserver, HerbivoreReproductionsObserver, InterestingEventsObserver
 from src.grid import Grid
 from src.constants import DELAY, BG_COLOR, SCREEN_WIDTH, SCREEN_HEIGHT
 
@@ -19,7 +19,7 @@ class Simulation:
         self.running = False
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
-        pygame.display.set_caption("Game of Life")
+        pygame.display.set_caption("Nature Simulation")
 
         self.grid = Grid()  # Create a new grid object for the current simulation
         self.temp_grid = Grid()  # It will be used at the update() function
@@ -66,8 +66,12 @@ class Simulation:
 
         self.create_alerts_observers()
 
+        cnt_generation = 0
+
         # Simulation Loop
         while True:
+            cnt_generation += 1
+
             # 1. User's Event Handling
             self.user_event_handler()
 
@@ -75,7 +79,7 @@ class Simulation:
             self.update_grid()
 
             # 3. Check predefined events of the game
-            self.events_manager.check_herbivore_extinction()
+            self.events_manager.check_live_organisms(cnt_generation)
             self.events_manager.check_plant_overgrowth(overgrown=0.9)
 
             # 4. Drawing
