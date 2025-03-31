@@ -2,6 +2,7 @@ import sys
 import time
 import numpy as np
 import pygame
+
 from src.entities.herbivore import Herbivore
 from src.entities.mobile_entity import MobileEntity
 from src.events.event_manager import EventsManager
@@ -37,11 +38,8 @@ class Simulation:
             for row, col in np.ndindex(self.grid.cells.shape):
                 obj = self.grid.cells[row][col]
 
-                if obj is None:
-                    continue  # Pass for empty cells
-
-                if not obj.is_alive():
-                    continue  # Pass for a static object like Tree Or Rock in the future
+                if (obj is None) or (not obj.is_alive()):
+                    continue  # Pass for empty cells or for a static object like Tree Or Rock in the future
 
                 obj.decrease_current_lifespan()  # Reduce object's lifespan
 

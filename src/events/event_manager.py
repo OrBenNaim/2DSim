@@ -37,19 +37,16 @@ class EventsManager:
         if observer not in self.observers[observer.event_name]:
             self.observers[observer.event_name].append(observer)
 
-    def remove_observer(self, observer: Observer, event_name: EventName):
+    def remove_observer(self, observer: Observer):
         """
         Removes an observer from a specific event.
-
         If the observer is subscribed to the event, they will be removed.
         If the observer is not found, no action is taken.
-
         Args:
             observer (Observer): The observer instance to remove.
-            event_name (EventName): The event from which the observer will be unsubscribed.
         """
         try:
-            self.observers[event_name].remove(observer)
+            self.observers[observer.event_name].remove(observer)
         except (ValueError, KeyError):
             pass  # Ignore if observer is not in the list or event_name is not found
 
@@ -58,9 +55,9 @@ class EventsManager:
         Notifies all observers subscribed to a specific event.
         Each observer will receive the event notification, allowing them to react accordingly.
         Args:
-            :param event_name: The event for which observers should be notified.
-            :param stats_dict:
-            :param generation_counter:
+            event_name (EventName): The event for which observers should be notified.
+            generation_counter:
+            stats_dict:
         """
         for observer in self.observers.get(event_name, []):
             observer.update(generation_counter, stats_dict)  # Assuming Observer class has an update method

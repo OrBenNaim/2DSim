@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import numpy as np
-from src.constants import FOLDER_CONFIG_PATH
+
 from src.entities.entity import Entity
 from src.utils import get_target_indices
 
@@ -155,20 +155,13 @@ class MobileEntity(Entity, ABC):
             T_cooldown_steps, T_predator_steps) from .yaml file.
             Each subclass will implement this. """
 
-        try:
-            super().load_entity_param_from_yaml()
+        super().load_entity_param_from_yaml()
 
-            r_class_name_sight = "R_" + self.name() + "_sight"
+        r_class_name_sight = "R_" + self.name() + "_sight"
 
-            if r_class_name_sight not in self.game_param[self.name()]:
-                raise ValueError(f"Missing {r_class_name_sight} parameters in game_param")
+        if r_class_name_sight not in self.game_param[self.name()]:
+            raise ValueError(f"Missing {r_class_name_sight} parameters in game_param")
 
-            self.radius_sight = int(self.game_param[self.name()][r_class_name_sight])
-            if self.radius_sight <= 0:
-                raise ValueError(f"{r_class_name_sight}: {self.radius_sight}, must be > 0")
-
-        except FileNotFoundError as not_found:
-            raise ValueError(f"Config file not found at {FOLDER_CONFIG_PATH}") from not_found
-
-        except Exception as e:
-            raise ValueError(f"Error loading Predator parameters: {e}") from e
+        self.radius_sight = int(self.game_param[self.name()][r_class_name_sight])
+        if self.radius_sight <= 0:
+            raise ValueError(f"{r_class_name_sight}: {self.radius_sight}, must be > 0")
