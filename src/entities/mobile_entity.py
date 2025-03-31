@@ -1,12 +1,11 @@
 from abc import ABC, abstractmethod
 import numpy as np
-from src.constants import FOLDER_CONFIG_PATH
 from src.entities.entity import Entity
 from src.utils import get_target_indices
 
 
 class MobileEntity(Entity, ABC):
-    """ This class will be function as base class for mobile object such as Herbivore and Predator """
+    """ This class will be function as base class for a mobile object such as Herbivore and Predator """
 
     def __init__(self, row: int, col: int, emoji) -> None:
         super().__init__(row, col, emoji)  # Initialize base constructor
@@ -33,7 +32,7 @@ class MobileEntity(Entity, ABC):
         if not self.is_alive():
             return  # Don't move if the MobileEntity is dead
 
-        # speed means here to moves the same amount of steps as the speed value
+        # speed means here to move the same number of steps as the speed value
         for _ in range(self.speed):
 
             # Store the old position before moving
@@ -53,17 +52,7 @@ class MobileEntity(Entity, ABC):
             self.update_position_on_grid(grid, old_pos, new_pos)
 
     def update_position_on_grid(self, grid, old_pos: tuple[int, int], new_pos: tuple[int, int]):
-        """
-        Updates the entity's position on the grid.
-
-        If the entity reaches a target, appropriate actions are taken.
-        This avoids code duplication between Predator, FastPredator, and Herbivore.
-
-        Args:
-            grid: The simulation grid.
-            old_pos (tuple[int, int]): The entity's previous position (row, col).
-            new_pos (tuple[int, int]): The entity's new position (row, col).
-        """
+        """ Updates the entity's position on the grid. """
 
         old_row, old_col = old_pos
         new_row, new_col = new_pos
@@ -155,20 +144,13 @@ class MobileEntity(Entity, ABC):
             T_cooldown_steps, T_predator_steps) from .yaml file.
             Each subclass will implement this. """
 
-        try:
-            super().load_entity_param_from_yaml()
+        super().load_entity_param_from_yaml()
 
-            r_class_name_sight = "R_" + self.name() + "_sight"
+        r_class_name_sight = "R_" + self.name() + "_sight"
 
-            if r_class_name_sight not in self.game_param[self.name()]:
-                raise ValueError(f"Missing {r_class_name_sight} parameters in game_param")
+        if r_class_name_sight not in self.game_param[self.name()]:
+            raise ValueError(f"Missing {r_class_name_sight} parameters in game_param")
 
-            self.radius_sight = int(self.game_param[self.name()][r_class_name_sight])
-            if self.radius_sight <= 0:
-                raise ValueError(f"{r_class_name_sight}: {self.radius_sight}, must be > 0")
-
-        except FileNotFoundError as not_found:
-            raise ValueError(f"Config file not found at {FOLDER_CONFIG_PATH}") from not_found
-
-        except Exception as e:
-            raise ValueError(f"Error loading Predator parameters: {e}") from e
+        self.radius_sight = int(self.game_param[self.name()][r_class_name_sight])
+        if self.radius_sight <= 0:
+            raise ValueError(f"{r_class_name_sight}: {self.radius_sight}, must be > 0")

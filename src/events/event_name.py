@@ -2,12 +2,11 @@ from enum import Enum
 
 
 class EventName(Enum):
+    """"
+    Enumeration representing different types of events in the system.
+    Each event is assigned a descriptive string value, making it easier
+    to reference events consistently throughout the program.
     """
-    An Enum makes it easier to manage event types because it provides a set of predefined values.
-    This can be useful when needs to ensure that the names of events and
-    alerts are consistent across the system.
-    """
-
     PREDATOR_EATS_HERBIVORE = "Predator eats Herbivore"
     PLANT_OVERGROWTH = "Plant Overgrowth"
     HERBIVORE_EXTINCTION = "Herbivore Extinction"

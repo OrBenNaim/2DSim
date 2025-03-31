@@ -17,38 +17,17 @@ class Herbivore(MobileEntity):
         return Plant
 
     def update_position_on_grid(self, grid, old_pos: tuple[int, int], new_pos: tuple[int, int]):
-        """
-        Updates the entity's position on the grid.
-
-        If the entity reaches a target, appropriate actions are taken.
-        This avoids code duplication between Predator, FastPredator, and Herbivore.
-        Args:
-            grid: The simulation grid.
-            old_pos (tuple[int, int]): The entity's previous position (row, col).
-            new_pos (tuple[int, int]): The entity's new position (row, col).
-        """
+        """ Updates the entity's position on the grid. """
 
         old_row, old_col = old_pos
         new_row, new_col = new_pos
 
         if new_row != old_row or new_col != old_col:
-
             if isinstance(grid.cells[new_row][old_row], Herbivore):
                 self.reproduce(grid)
                 return
 
-            target = grid.cells[new_row][new_col]
-
-            if target is not None:
-                self.eat(target)
-
-            # Move entity to his new position
-            grid.cells[new_row][new_col] = self
-            grid.update_empty_cells(new_row, new_col, is_occupied=True)
-
-            # Clear old position
-            grid.cells[old_row][old_col] = None
-            grid.update_empty_cells(old_row, old_col, is_occupied=False)
+            super().update_position_on_grid(grid, old_pos, new_pos)
 
     def reproduce(self, grid) -> None:
         """

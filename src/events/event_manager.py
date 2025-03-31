@@ -1,4 +1,5 @@
 from typing import Dict, List
+
 from src.entities.herbivore import Herbivore
 from src.entities.plant import Plant
 from src.events.event_name import EventName
@@ -39,7 +40,7 @@ class EventsManager:
         if observer not in self.observers[observer.event_name]:
             self.observers[observer.event_name].append(observer)
 
-    def remove_observer(self, observer: Observer, event_name: EventName):
+    def remove_observer(self, observer: Observer):
         """
         Removes an observer from a specific event.
 
@@ -48,29 +49,25 @@ class EventsManager:
 
         Args:
             observer (Observer): The observer instance to remove.
-            event_name (EventName): The event from which the observer will be unsubscribed.
         """
         try:
-            self.observers[event_name].remove(observer)
+            self.observers[observer.event_name].remove(observer)
         except (ValueError, KeyError):
             pass  # Ignore if observer is not in the list or event_name is not found
 
     def notify(self, event_name: EventName, data=None):
         """
         Notifies all observers subscribed to a specific event.
-
         Each observer will receive the event notification, allowing them to react accordingly.
-
         Args:
             event_name (EventName): The event for which observers should be notified.
-            :param event_name:
-            :param data:
+            data (Any, optional): Additional data related to the event (default is None).
         """
         for observer in self.observers.get(event_name, []):
             observer.update(data)  # Assuming Observer class has an update method
 
             if event_name in (EventName.HERBIVORE_EXTINCTION, EventName.PLANT_OVERGROWTH):
-                self.remove_observer(observer, event_name)
+                self.remove_observer(observer)
 
     #--------------- Methods of business logic can notify subscribers about changes -----------------
     def check_herbivore_extinction(self) -> None:

@@ -2,7 +2,7 @@ import logging
 import os
 import numpy as np
 import yaml
-from src.constants import FOLDER_CONFIG_PATH
+from src.constants import FOLDER_CONFIG_PATH, LOG_DIR
 from src.events.event_name import EventName
 
 # Load the configuration once at the start
@@ -47,7 +47,6 @@ def get_target_indices(cells, target_object):
 
 
 # Ensure the logs directory exists
-LOG_DIR = "logs"
 os.makedirs(LOG_DIR, exist_ok=True)
 
 # Configure logging

@@ -31,9 +31,7 @@ class Entity(ABC):
         return self.__class__.__name__
 
     def load_entity_param_from_yaml(self):
-        """ Load object's parameters (T_Object_steps) from .yaml file.
-            Each subclass from MobileEntity class will implement this.
-            Subclasses which are not belonged to Mobile Entity do not need to implement this method. """
+        """ Load object's parameters (T_Object_steps) from .yaml file. """
         try:
             t_class_name_steps = "T_" + self.name() + "_steps"
 
