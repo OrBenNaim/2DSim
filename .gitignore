@@ -162,7 +162,10 @@ cython_debug/
 
 
 .idea/
+
+# Project folder
 .logs/
+.plots/
 
 # Ruff stuff:
 .ruff_cache/

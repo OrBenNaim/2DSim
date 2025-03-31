@@ -68,7 +68,7 @@ class EventsManager:
         """
         Plots the data for all observers.
         """
-        for event_name, observers in self.observers.items():
+        for _, observers in self.observers.items():
             for observer in observers:
                 print(f"Plotting for {observer.__class__.__name__}")
                 observer.plot_df()

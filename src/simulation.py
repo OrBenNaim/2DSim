@@ -114,7 +114,6 @@ class Simulation:
 
         Each observer is associated with an event type from `EventName` and a corresponding message."""
 
-
         live_organisms_observer = LiveOrganismsObserver()
         self.events_manager.add_observer(observer=live_organisms_observer)
 

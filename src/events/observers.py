@@ -210,19 +210,14 @@ class InterestingEventsObserver(Observer):
     interesting_events = [EventName.INTERESTING_EVENTS, EventName.HERBIVORE_REPRODUCTIONS,
                           EventName.ANIMAL_CONSUMPTION]
 
-    def __init__(self):
-        super().__init__()
-        #self.df = pd.DataFrame(columns=["Generation", "Event_Type"])
-
     def update(self, gen_cnt: int, *args, **interesting_events_dict: Dict[str, int]):
         """
-        Updates the dataframe with a new generation count and corresponding interesting events data.
+        Updates the dataframe with a new generation count and corresponding interesting events' data.
         """
         if interesting_events_dict is None:
             return
 
         # Create a new row with the generation count and the organisms' data
-
         new_row = {"Generation": gen_cnt, **interesting_events_dict}
 
         # Append the new row to the DataFrame

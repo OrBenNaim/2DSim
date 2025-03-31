@@ -25,8 +25,17 @@
     ```
 2. Install dependencies:
     ```bash
-        pip install pygame numpy
+        pip install numpy
     ```
+   ```bash
+        pip install pygame
+   ```
+   ```bash
+        pip install pandas 
+   ```
+   ```bash
+        pip install matplotlib
+   ```
 
 ## Usage
 1. Run the simulation:
@@ -37,6 +46,7 @@
 2. **Controls**:
    - Space: Pause/Resume simulation.
    - Enter: Start the simulation.
+   - Esc: Stop the simulation. The program will immediately generate all graphs after pressing 'Esc' key.
 
 ## Assignment Description
    **Link**: 
