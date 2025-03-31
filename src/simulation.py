@@ -48,11 +48,22 @@ class Simulation:
 
                 # obj is herbivore or predator
                 if isinstance(obj, MobileEntity):
-                    obj.move(self.temp_grid)  # Let the herbivore\predator move
+                    obj.move(self.temp_grid)  # Let the herbivore/predator move
 
-                    if not isinstance(obj, Herbivore):
-                        if obj.current_lifespan == obj.lifespan:
-                            self.events_manager.herbivore_reproduction(self.cnt_generation)
+                    old_row = row
+                    old_col = col
+
+                    # Check Interesting Events (without Herbivore Reproduction)
+                    self.events_manager.check_interesting_events(self.cnt_generation, obj, False)
+
+                    if isinstance(obj, Herbivore):
+                        # Check Herbivore Reproduction Event
+                        self.events_manager.check_herbivore_reproduction(row, col, obj.row, obj.col,
+                                                                         self.cnt_generation)
+
+                        # Check Interesting Events (with Herbivore Reproduction)
+                        self.events_manager.check_interesting_events(self.cnt_generation, obj, True,
+                                                                     old_row, old_col)
 
             self.temp_grid.add_random_plant()  # Plants appear randomly at empty spaces
 
@@ -77,7 +88,6 @@ class Simulation:
 
             # 3. Check predefined events of the game
             self.events_manager.check_live_organisms(self.cnt_generation)
-            self.events_manager.herbivore_reproduction(self.cnt_generation)
 
             # 4. Drawing
             self.screen.fill(BG_COLOR)

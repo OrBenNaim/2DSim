@@ -1,4 +1,7 @@
 from typing import Dict, List
+
+from src.entities.herbivore import Herbivore
+from src.entities.mobile_entity import MobileEntity
 from src.events.event_name import EventName
 from src.events.observers import Observer
 from src.utils import get_target_indices
@@ -21,13 +24,13 @@ class EventsManager:
         """
         self.observers: Dict[EventName, List[Observer]] = {}
         self.grid = grid
+        self.animal_consumption_cnt = 0
+        self.reproduction_cnt = 0
 
     def add_observer(self, observer: Observer):
         """
         Adds an observer to a specific event.
-
         If the observer is not already subscribed to the given event, they will be added.
-
         Args:
             observer (Observer): The observer instance to subscribe.
         """
@@ -50,19 +53,21 @@ class EventsManager:
         except (ValueError, KeyError):
             pass  # Ignore if observer is not in the list or event_name is not found
 
-    def notify(self, event_name: EventName, generation_counter: int, stats_dict: Dict[str, int]=None):
+    def notify(self, event_name: EventName, generation_counter: int, stats_dict: Dict[str, int] = None):
         """
         Notifies all observers subscribed to a specific event.
-        Each observer will receive the event notification, allowing them to react accordingly.
-        Args:
-            event_name (EventName): The event for which observers should be notified.
-            generation_counter:
-            stats_dict:
+        If stats_dict is provided, it is unpacked as keyword arguments.
         """
         for observer in self.observers.get(event_name, []):
-            observer.update(generation_counter, stats_dict)  # Assuming Observer class has an update method
+            if stats_dict:
+                observer.update(generation_counter, **stats_dict)  # Unpack if a dictionary is provided
+            else:
+                observer.update(generation_counter)  # Call update without extra arguments
 
     def plot_all_graphs(self):
+        """
+        Plots the data for all observers.
+        """
         for event_name, observers in self.observers.items():
             for observer in observers:
                 print(f"Plotting for {observer.__class__.__name__}")
@@ -71,6 +76,9 @@ class EventsManager:
     #--------------- Methods of business logic can notify subscribers about changes -----------------
     def check_live_organisms(self, generation_cnt: int) -> None:
         """
+        Checks the number of live organisms in the grid for the current generation.
+        Args:
+            generation_cnt (int): The current generation number.
         """
         live_organisms_dict = {}
 
@@ -90,12 +98,52 @@ class EventsManager:
             self.notify(event_name=EventName.LIVE_ORGANISMS, generation_counter=generation_cnt,
                         stats_dict=live_organisms_dict)
 
-    def herbivore_reproduction(self, generation_cnt: int) -> None:
-        """ """
-        self.notify(event_name=EventName.HERBIVORE_REPRODUCTIONS, generation_counter=generation_cnt)
-
-    def check_interesting_events(self, generation_cnt: int) -> None:
+    def check_herbivore_reproduction(self, old_row: int, old_col: int,
+                                     new_row: int, new_col: int, generation_cnt: int) -> None:
         """
+        Checks if a new herbivore has been reproduced at the specified grid location.
+        Args:
+            old_row (int): The previous row index of the herbivore's location.
+            old_col (int): The previous column index of the herbivore's location.
+            new_row (int): The new row index of the herbivore's location.
+            new_col (int): The new column index of the herbivore's location.
+            generation_cnt (int): The current generation number.
         """
+        if new_row != old_row or new_col != old_col:
+            if isinstance(self.grid.cells[new_row][old_row], Herbivore):
+                self.notify(event_name=EventName.HERBIVORE_REPRODUCTIONS, generation_counter=generation_cnt)
 
-        self.notify(EventName.INTERESTING_EVENTS)
+    def check_interesting_events(self, generation_cnt: int, obj: MobileEntity,
+                                 check_reproduction: bool, *args) -> None:
+        """
+        Checks for interesting events like reproduction and consumption in a simulation.
+
+        Args:
+            generation_cnt (int): The current generation count.
+            obj (MobileEntity): The mobile entity (e.g., an organism) to check for events.
+            check_reproduction (bool): Whether to check for reproduction events.
+            *args: Additional arguments, expected to include old_row and old_col for reproduction checks.
+
+        Returns:
+            None: Updates internal counters and notifies observers of events.
+        """
+        interesting_events_dict = {}
+
+        if check_reproduction is True:
+            old_row = args[0]
+            old_col = args[1]
+
+            # Check if Reproduction occurred
+            if obj.row != old_row or obj.col != old_col:
+                if isinstance(self.grid.cells[obj.row][old_row], Herbivore):
+                    self.reproduction_cnt += 1
+
+        interesting_events_dict["Herbivore Reproductions"] = self.reproduction_cnt
+
+        # Check organism consumption occurred
+        if obj.current_lifespan == obj.lifespan:
+            self.animal_consumption_cnt += 1
+
+        interesting_events_dict["Animal Consumption"] = self.animal_consumption_cnt
+
+        self.notify(EventName.INTERESTING_EVENTS, generation_cnt, stats_dict=interesting_events_dict)

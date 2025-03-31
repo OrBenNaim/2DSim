@@ -10,5 +10,6 @@ class EventName(Enum):
 
     LIVE_ORGANISMS = "Live Organisms"
     HERBIVORE_REPRODUCTIONS = "Herbivore Reproductions"
-    INTERESTING_EVENTS = "Interesting Events"
+    ANIMAL_CONSUMPTION = "Animal Consumption"
+    INTERESTING_EVENTS = "Summarizing Interesting Events"
     # Add more event names as needed
