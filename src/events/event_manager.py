@@ -110,7 +110,7 @@ class EventsManager:
             generation_cnt (int): The current generation number.
         """
         if new_row != old_row or new_col != old_col:
-            if isinstance(self.grid.cells[new_row][old_row], Herbivore):
+            if isinstance(self.grid.cells[new_row][new_col], Herbivore):
                 self.notify(event_name=EventName.HERBIVORE_REPRODUCTIONS, generation_counter=generation_cnt)
 
     def check_interesting_events(self, generation_cnt: int, obj: MobileEntity,
